@@ -109,6 +109,43 @@
         .mobile-menu a:hover {
             background-color: #2d3748;
         }
+
+        /* Notice Board Specific Styles */
+        .notice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0; /* Light gray border */
+            transition: background-color 0.2s ease;
+        }
+        .notice-item:last-child {
+            border-bottom: none;
+        }
+        .notice-item:hover {
+            background-color: #f7fafc; /* Very light gray on hover */
+        }
+        .notice-item-title {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* medium */
+            color: #2d3748; /* dark gray */
+            flex-grow: 1; /* Allows title to take available space */
+        }
+        .notice-item-link {
+            display: flex;
+            align-items: center;
+            color: #4c51bf; /* Indigo */
+            margin-left: 1rem;
+            transition: color 0.2s ease;
+        }
+        .notice-item-link:hover {
+            color: #6b46c1; /* Darker Indigo/Purple */
+        }
+        .notice-item-link svg {
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -125,6 +162,8 @@
                 <li><a href="#academics" class="text-white hover:text-blue-300 transition-colors duration-200">Academics</a></li>
                 <li><a href="#admissions" class="text-white hover:text-blue-300 transition-colors duration-200">Admissions</a></li>
                 <li><a href="#campus" class="text-white hover:text-blue-300 transition-colors duration-200">Campus Life</a></li>
+                <li><a href="#news" class="text-white hover:text-blue-300 transition-colors duration-200">News & Events</a></li>
+                <li><a href="#notices" class="text-white hover:text-blue-300 transition-colors duration-200">Notice Board</a></li>
                 <li><a href="#contact" class="text-white hover:text-blue-300 transition-colors duration-200">Contact</a></li>
             </ul>
 
@@ -143,6 +182,8 @@
                     <li><a href="#academics" class="block py-2 px-4 text-white hover:bg-gray-700">Academics</a></li>
                     <li><a href="#admissions" class="block py-2 px-4 text-white hover:bg-gray-700">Admissions</a></li>
                     <li><a href="#campus" class="block py-2 px-4 text-white hover:bg-gray-700">Campus Life</a></li>
+                    <li><a href="#news" class="block py-2 px-4 text-white hover:bg-gray-700">News & Events</a></li>
+                    <li><a href="#notices" class="block py-2 px-4 text-white hover:bg-gray-700">Notice Board</a></li>
                     <li><a href="#contact" class="block py-2 px-4 text-white hover:bg-gray-700">Contact</a></li>
                 </ul>
             </div>
@@ -295,8 +336,64 @@
             </div>
         </section>
 
+        <!-- Notice Board Section (NEW) -->
+        <section id="notices" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Notice Board</h2>
+                <div class="card max-w-4xl mx-auto p-6 md:p-8">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="notice-item">
+                            <span class="notice-item-title">Notice Regarding Application Approval for B.Ed Entrance Examination-2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-item-title">Notice Regarding Correction in the Submitted Application Form for B.Ed Entrance Examination - 2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-item-title">Notice Regarding Extension of the Last Date for Submission of Application Forms for B.Ed Entrance Examination-2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-item-title">Notification regarding the submission of Application fees for B.Ed Entrance Examination- 2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-item-title">Guidelines & Timelines for filling up B.Ed Entrance Application Form- 2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-item-title">Notification Regarding B.Ed Entrance Examination- 2025</span>
+                            <a href="#" class="notice-item-link">
+                                View
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-center mt-8">
+                        <a href="#" class="btn-primary">View All Notices</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Us Section -->
-        <section id="contact" class="py-16 md:py-24 bg-white">
+        <section id="contact" class="py-16 md:py-24 bg-gray-100">
             <div class="container mx-auto px-4">
                 <h2 class="section-heading">Contact Us</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-4xl mx-auto">
@@ -354,6 +451,7 @@
                     <li><a href="#admissions" class="footer-link text-sm">Admissions</a></li>
                     <li><a href="#campus" class="footer-link text-sm">Campus Life</a></li>
                     <li><a href="#news" class="footer-link text-sm">News & Events</a></li>
+                    <li><a href="#notices" class="footer-link text-sm">Notice Board</a></li>
                 </ul>
             </div>
             <div>
