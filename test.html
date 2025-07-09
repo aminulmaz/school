@@ -92,6 +92,13 @@
             background-color: #ef4444; /* Red-500 */
             color: white;
         }
+        .action-button.admit-card {
+            background-color: #bfdbfe; /* Blue-200 */
+            color: #1e40af; /* Blue-800 */
+        }
+        .action-button.admit-card:hover {
+            background-color: #93c5fd; /* Blue-300 */
+        }
         .modal-content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -251,6 +258,7 @@
                     <option value="Rejected">Rejected</option>
                 </select>
                 <button id="update-status-btn" class="w-full md:w-1/2 bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Update Status</button>
+                <button id="generate-admit-card-btn" class="w-full md:w-1/2 action-button admit-card py-3 rounded-lg hidden">Generate Admit Card</button>
             </div>
         </div>
     </div>
@@ -276,13 +284,18 @@
         </div>
     </div>
 
+    <footer class="mt-8 py-4 text-center text-gray-600 text-sm">
+        Developed by MZR WEB SOLUTIONS
+    </footer>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+        // Firebase configuration (replace with your actual API Key if different)
         const firebaseConfig = {
-            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
+            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", 
             authDomain: "schooladmsn.firebaseapp.com",
             projectId: "schooladmsn",
             storageBucket: "schooladmsn.firebasestorage.app",
@@ -295,6 +308,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // DOM Elements
         const tableBody = document.getElementById('applications-table-body');
         const loadingState = document.getElementById('loading-state');
         const modal = document.getElementById('details-modal');
@@ -311,14 +325,13 @@
         const customAlertModal = document.getElementById('custom-alert-modal');
         const customAlertMessage = document.getElementById('custom-alert-message');
         const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
-        
-        const deleteAllBtn = document.getElementById('delete-all-btn'); // This will be removed in the final HTML, but kept here for reference if you had it.
-        const deleteSelectedBtn = document.getElementById('delete-selected-btn'); // New button
-        const selectAllCheckbox = document.getElementById('select-all-checkbox'); // New checkbox
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn'); 
+        const selectAllCheckbox = document.getElementById('select-all-checkbox'); 
         const confirmationModal = document.getElementById('confirmation-modal');
         const confirmationMessage = document.getElementById('confirmation-message');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const generateAdmitCardBtn = document.getElementById('generate-admit-card-btn'); // New Admit Card Button
 
 
         let currentEditingDocId = null;
@@ -335,6 +348,7 @@
             }
         });
 
+        // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
@@ -346,12 +360,14 @@
             }
         });
 
+        // Fetches all applications from Firestore
         async function fetchApplications() {
             loadingState.parentElement.classList.remove('hidden');
             tableBody.innerHTML = ''; // Clear existing rows
             tableBody.appendChild(loadingState.parentElement);
 
             try {
+                // Order by submittedAt for consistent display
                 const q = query(collection(db, "applications"), orderBy("submittedAt", "desc"));
                 const querySnapshot = await getDocs(q);
                 
@@ -372,6 +388,7 @@
             }
         }
 
+        // Renders applications to the table
         function renderApplications(applicationsToRender) {
             tableBody.innerHTML = ''; // Clear table before rendering
             if (applicationsToRender.length === 0) {
@@ -409,6 +426,7 @@
             });
         }
 
+        // Applies filters and search to the applications data
         function applyFiltersAndSearch() {
             let filteredApplications = [...allApplications]; // Start with a copy of all applications
 
@@ -430,6 +448,7 @@
             renderApplications(filteredApplications);
         }
 
+        // Displays application details in a modal
         function viewDetails(docId) {
             currentEditingDocId = docId;
             const data = allApplications.find(app => app.id === docId);
@@ -452,10 +471,20 @@
                 </div>
             `;
             statusSelect.value = data.status;
+            
+            // Show/hide admit card button based on status
+            if (data.status === 'Accepted') {
+                generateAdmitCardBtn.classList.remove('hidden');
+                generateAdmitCardBtn.onclick = () => generateAdmitCardPdf(data); // Set data for admit card generation
+            } else {
+                generateAdmitCardBtn.classList.add('hidden');
+            }
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
+        // Updates application status in Firestore
         updateStatusBtn.addEventListener('click', async () => {
             if (!currentEditingDocId) return;
             const newStatus = statusSelect.value;
@@ -485,12 +514,14 @@
             }
         });
 
+        // Closes the details modal
         function closeModal() {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             currentEditingDocId = null;
         }
 
+        // Event Listeners for modal and filters
         modalCloseBtn.addEventListener('click', closeModal);
         refreshBtn.addEventListener('click', fetchApplications);
         statusFilter.addEventListener('change', applyFiltersAndSearch);
@@ -655,7 +686,7 @@
             }
         });
 
-        // Function to export to PDF (using html2pdf.js)
+        // Function to export to PDF (using html2pdf.js) for the Admin Dashboard Report
         exportPdfBtn.addEventListener('click', () => {
             const dataToExport = allApplications; // Export all, or filteredApplications
             if (dataToExport.length === 0) {
@@ -693,7 +724,7 @@
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.applicationNo}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.fullName}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.email}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568; word-wrap: break-word; max-width: 150px;">${item.email}</td> <!-- Added word-wrap for email -->
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
@@ -706,6 +737,7 @@
             tableHtml += `
                     </tbody>
                 </table>
+                <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
             `;
             tempDiv.innerHTML = tableHtml;
             document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
@@ -722,6 +754,101 @@
                 tempDiv.remove(); // Remove temporary div after PDF generation
             });
         });
+
+        // --- New Function for Admit Card PDF Generation ---
+        async function generateAdmitCardPdf(applicationData) {
+            // Close the details modal first
+            closeModal(); 
+            showCustomAlert("Generating Admit Card PDF...");
+
+            // Create a temporary div to render the admit card for PDF
+            const tempDiv = document.createElement('div');
+            tempDiv.style.width = '8.5in'; // Standard letter size width
+            tempDiv.style.height = '11in'; // Standard letter size height
+            tempDiv.style.padding = '0.75in'; // Margin for the PDF
+            tempDiv.style.fontFamily = 'Inter, sans-serif';
+            tempDiv.style.boxSizing = 'border-box';
+            tempDiv.style.display = 'flex';
+            tempDiv.style.flexDirection = 'column';
+            tempDiv.style.justifyContent = 'space-between';
+            tempDiv.style.border = '2px solid #4c51bf'; // Border for admit card
+            tempDiv.style.borderRadius = '10px';
+            tempDiv.style.backgroundColor = '#ffffff';
+
+            const schoolName = "MZR Public School"; // Example School Name
+            const examDate = "2025-08-15"; // Placeholder Exam Date
+            const examTime = "10:00 AM - 12:00 PM"; // Placeholder Exam Time
+            const examVenue = "School Auditorium, 123 Main Street, City, State"; // Placeholder Exam Venue
+
+            const admitCardHtml = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://placehold.co/100x100/4c51bf/ffffff?text=SCHOOL+LOGO" alt="School Logo" style="height: 80px; margin-bottom: 10px;">
+                    <h1 style="font-size: 28px; font-weight: bold; color: #4c51bf; margin-bottom: 5px;">${schoolName}</h1>
+                    <h2 style="font-size: 22px; font-weight: bold; color: #1f2937; margin-bottom: 15px;">ADMIT CARD</h2>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+                    <div style="flex: 1;">
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Application No:</strong> ${applicationData.applicationNo}</p>
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Student Name:</strong> ${applicationData.fullName}</p>
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Date of Birth:</strong> ${applicationData.dob}</p>
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Email:</strong> ${applicationData.email}</p>
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Phone:</strong> ${applicationData.phone}</p>
+                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Address:</strong> ${applicationData.address}</p>
+                    </div>
+                    <div style="width: 150px; height: 200px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <img src="${applicationData.photoUrl}" alt="Student Photo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/150x200?text=Student+Photo'">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 15px; background-color: #f0f4f8; border-left: 5px solid #4c51bf; border-radius: 5px;">
+                    <h3 style="font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 10px;">Entrance Examination Details:</h3>
+                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Date:</strong> ${examDate}</p>
+                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Time:</strong> ${examTime}</p>
+                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Venue:</strong> ${examVenue}</p>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h3 style="font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 10px;">Important Instructions:</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; font-size: 14px; color: #4a5568;">
+                        <li style="margin-bottom: 5px;">Candidates must bring this Admit Card to the examination hall.</li>
+                        <li style="margin-bottom: 5px;">Arrive at least 30 minutes before the scheduled exam time.</li>
+                        <li style="margin-bottom: 5px;">No electronic devices are allowed inside the examination hall.</li>
+                        <li style="margin-bottom: 5px;">Please carry a valid photo ID proof along with this admit card.</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 20px; border-top: 1px dashed #cbd5e0;">
+                    <div style="text-align: left;">
+                        <p style="font-size: 14px; color: #4a5568;">Principal's Signature</p>
+                        <img src="https://placehold.co/120x60/ffffff/000000?text=Signature" alt="Principal Signature" style="height: 50px; margin-top: 5px; border-bottom: 1px solid #000;">
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 12px; color: #6b7280;">Date: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
+            `;
+            tempDiv.innerHTML = admitCardHtml;
+            document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
+
+            const opt = {
+                margin: 0.5,
+                filename: `Admit_Card_${applicationData.applicationNo}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } // Portrait for admit card
+            };
+
+            html2pdf().from(tempDiv).set(opt).save().then(() => {
+                tempDiv.remove(); // Remove temporary div after PDF generation
+                showCustomAlert("Admit Card PDF generated successfully!");
+            }).catch(error => {
+                console.error("Error generating Admit Card PDF: ", error);
+                showCustomAlert("Failed to generate Admit Card PDF.");
+            });
+        }
 
     </script>
 </body>
