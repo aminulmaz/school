@@ -6,6 +6,8 @@
     <title>Admin Dashboard - Admission Applications</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- For PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .modal-backdrop { z-index: 50; }
@@ -20,25 +22,112 @@
         .status-Under-Review { background-color: #fef3c7; color: #b45309; }
         .status-Accepted { background-color: #d1fae5; color: #065f46; }
         .status-Rejected { background-color: #fee2e2; color: #991b1b; }
+
+        /* Modern Admin Portal Design */
+        .header-gradient {
+            background: linear-gradient(to right, #4c51bf, #6b46c1); /* Deep purple to indigo */
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+        .table-header th {
+            background-color: #f8fafc; /* Light gray for table header */
+            font-weight: 700;
+            color: #4a5568;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .table-row td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        .table-row:last-child td {
+            border-bottom: none;
+        }
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .action-button.view {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+        .action-button.view:hover {
+            background-color: #c7d2fe;
+        }
+        .action-button.export {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .action-button.export:hover {
+            background-color: #a7f3d0;
+        }
+        .action-button.pdf {
+            background-color: #ffe0b2; /* Light orange */
+            color: #e65100; /* Dark orange */
+        }
+        .action-button.pdf:hover {
+            background-color: #ffcc80;
+        }
+        .modal-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .modal-content-grid p strong {
+            color: #2d3748; /* Darker text for labels */
+        }
+        .modal-content-grid img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            .control-group {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
 
     <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Admission Applications</h1>
+        <div class="header-gradient">
+            <h1 class="text-3xl font-bold">Admission Applications Dashboard</h1>
             <div class="flex items-center space-x-4">
-                <button id="refresh-btn" class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors" title="Refresh Applications">
+                <button id="refresh-btn" class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors shadow-md" title="Refresh Applications">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 4l16 16"/></svg>
                 </button>
-                <button id="logout-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">Logout</button>
+                <button id="logout-btn" class="bg-red-400 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 transition-colors shadow-md">Logout</button>
             </div>
         </div>
 
-        <!-- Filter and Search Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
-            <div class="w-full md:w-1/3">
-                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status:</label>
+        <!-- Filter, Search and Export Section -->
+        <div class="card mb-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+            <div class="w-full md:w-1/3 control-group">
+                <label for="status-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Status:</label>
                 <select id="status-filter" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="All">All</option>
                     <option value="Submitted">Submitted</option>
@@ -47,17 +136,21 @@
                     <option value="Rejected">Rejected</option>
                 </select>
             </div>
-            <div class="w-full md:w-2/3">
-                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Search (App No, Name):</label>
+            <div class="w-full md:w-1/3 control-group">
+                <label for="search-input" class="text-sm font-medium text-gray-700 whitespace-nowrap">Search (App No, Name):</label>
                 <input type="text" id="search-input" placeholder="Enter application number or name..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="w-full md:w-1/3 flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                <button id="export-csv-btn" class="action-button export w-full">Export CSV</button>
+                <button id="export-pdf-btn" class="action-button pdf w-full">Export PDF</button>
             </div>
         </div>
 
         <!-- Applications Table -->
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="card overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
-                    <thead class="bg-gray-50 border-b-2 border-gray-200">
+                    <thead class="table-header">
                         <tr>
                             <th class="p-4 text-left text-sm font-semibold text-gray-600">Application No</th>
                             <th class="p-4 text-left text-sm font-semibold text-gray-600">Name</th>
@@ -78,7 +171,7 @@
     </div>
 
     <!-- Details Modal -->
-    <div id="details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden modal-backdrop">
+    <div id="details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center hidden modal-backdrop">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full m-4">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-2xl font-semibold text-gray-800">Application Details</h3>
@@ -99,9 +192,18 @@
         </div>
     </div>
 
+    <!-- Custom Alert/Message Box -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
+            <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+            <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -129,6 +231,12 @@
         const logoutBtn = document.getElementById('logout-btn');
         const statusFilter = document.getElementById('status-filter');
         const searchInput = document.getElementById('search-input');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const exportPdfBtn = document.getElementById('export-pdf-btn');
+        const customAlertModal = document.getElementById('custom-alert-modal');
+        const customAlertMessage = document.getElementById('custom-alert-message');
+        const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
+
 
         let currentEditingDocId = null;
         let allApplications = []; // Store all applications for filtering/searching
@@ -173,7 +281,7 @@
                 }
 
                 allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderApplications(allApplications); // Render all initially
+                applyFiltersAndSearch(); // Render all initially, applying any active filters/search
             } catch (error) {
                 console.error("Error fetching applications: ", error);
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-red-500">Error loading data. Please try again.</td></tr>';
@@ -190,14 +298,14 @@
 
             applicationsToRender.forEach((data) => {
                 const row = document.createElement('tr');
-                row.className = 'border-b hover:bg-gray-50';
+                row.className = 'table-row'; // Apply new class for styling
                 row.innerHTML = `
-                    <td class="p-4 text-sm text-gray-700">${data.applicationNo}</td>
-                    <td class="p-4 text-sm text-gray-700">${data.fullName}</td>
-                    <td class="p-4 text-sm text-gray-700">${data.submittedAt ? new Date(data.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
-                    <td class="p-4 text-sm"><span class="status-badge status-${data.status.replace(' ', '-')}">${data.status}</span></td>
+                    <td class="p-4 text-sm">${data.applicationNo}</td>
+                    <td class="p-4 text-sm">${data.fullName}</td>
+                    <td class="p-4 text-sm">${data.submittedAt ? new Date(data.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
+                    <td class="p-4 text-sm"><span class="status-badge status-${data.status.replace(/ /g, '-')}">${data.status}</span></td>
                     <td class="p-4 text-sm">
-                        <button class="view-btn bg-blue-100 text-blue-700 font-semibold py-1 px-3 rounded-full hover:bg-blue-200 transition-colors" data-id="${data.id}">View</button>
+                        <button class="view-btn action-button view" data-id="${data.id}">View</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -236,7 +344,7 @@
             if (!data) return;
             
             modalContent.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                <div class="modal-content-grid">
                     <p><strong>Name:</strong> ${data.fullName}</p>
                     <p><strong>App No:</strong> ${data.applicationNo}</p>
                     <p><strong>DOB:</strong> ${data.dob}</p>
@@ -247,7 +355,7 @@
                     <p><strong>Percentage/CGPA:</strong> ${data.percentageCgpa || 'N/A'}</p>
                     <div class="md:col-span-2">
                         <strong>Photo:</strong>
-                        <img src="${data.photoUrl}" alt="Photo of ${data.fullName}" class="mt-2 border rounded-lg max-h-48" onerror="this.src='https://placehold.co/150x200?text=Image+Not+Found'">
+                        <img src="${data.photoUrl}" alt="Photo of ${data.fullName}" class="mt-2" onerror="this.src='https://placehold.co/150x200?text=Image+Not+Found'">
                     </div>
                 </div>
             `;
@@ -273,7 +381,8 @@
                 if (updatedAppIndex > -1) {
                     allApplications[updatedAppIndex].status = newStatus;
                 }
-                applyFiltersAndSearch(); // Re-render with updated status
+                applyFiltersAndSearch(); // Re-render the table with the updated status
+                showCustomAlert("Application status updated successfully!");
             } catch (error) {
                 console.error("Error updating status: ", error);
                 showCustomAlert("Failed to update status.");
@@ -290,31 +399,152 @@
         }
 
         modalCloseBtn.addEventListener('click', closeModal);
-        refreshBtn.addEventListener('click', fetchApplications); // Refresh fetches all and re-renders
+        refreshBtn.addEventListener('click', fetchApplications);
         statusFilter.addEventListener('change', applyFiltersAndSearch);
-        searchInput.addEventListener('input', applyFiltersAndSearch); // Use 'input' for real-time search
+        searchInput.addEventListener('input', applyFiltersAndSearch);
 
         // Custom Alert/Message Box Function (replaces alert())
         function showCustomAlert(message) {
-            const existingAlert = document.getElementById('custom-alert-modal');
-            if (existingAlert) existingAlert.remove();
-
-            const alertModal = document.createElement('div');
-            alertModal.id = 'custom-alert-modal';
-            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
-            alertModal.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-                    <p class="text-gray-600 mb-6">${message}</p>
-                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-                </div>
-            `;
-            document.body.appendChild(alertModal);
-
-            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
-                alertModal.remove();
-            });
+            customAlertMessage.textContent = message;
+            customAlertModal.classList.remove('hidden');
+            customAlertModal.classList.add('flex');
         }
+
+        customAlertOkBtn.addEventListener('click', () => {
+            customAlertModal.classList.add('hidden');
+            customAlertModal.classList.remove('flex');
+        });
+
+        // --- Export Functions ---
+
+        // Function to convert data to CSV format
+        function convertToCsv(dataArray) {
+            if (dataArray.length === 0) return '';
+
+            // Define headers (order them as desired)
+            const headers = [
+                "Application No", "Full Name", "Date of Birth", "Email", "Phone",
+                "Address", "Photo URL", "Last Passed Exam", "Percentage/CGPA", "Submitted At", "Status"
+            ];
+            
+            // Map data to header order
+            const rows = dataArray.map(item => [
+                item.applicationNo,
+                item.fullName,
+                item.dob,
+                item.email,
+                item.phone,
+                `"${item.address.replace(/"/g, '""')}"`, // Handle commas/quotes in address
+                item.photoUrl,
+                item.lastPassedExam,
+                item.percentageCgpa,
+                item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A',
+                item.status
+            ]);
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(field => {
+                    // Ensure fields with commas or quotes are properly escaped
+                    if (typeof field === 'string' && (field.includes(',') || field.includes('"') || field.includes('\n'))) {
+                        return `"${field.replace(/"/g, '""')}"`;
+                    }
+                    return field;
+                }).join(',') + '\n';
+            });
+            return csvContent;
+        }
+
+        // Function to download CSV
+        exportCsvBtn.addEventListener('click', () => {
+            const dataToExport = allApplications; // Export all data, or use filteredApplications if you want to export only currently displayed
+            if (dataToExport.length === 0) {
+                showCustomAlert("No data to export.");
+                return;
+            }
+            const csv = convertToCsv(dataToExport);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection for download attribute
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'admission_applications.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showCustomAlert("Your browser does not support downloading CSV directly. Please copy the data manually.");
+            }
+        });
+
+        // Function to export to PDF (using html2pdf.js)
+        exportPdfBtn.addEventListener('click', () => {
+            const dataToExport = allApplications; // Export all, or filteredApplications
+            if (dataToExport.length === 0) {
+                showCustomAlert("No data to export.");
+                return;
+            }
+
+            // Create a temporary div to render the table for PDF
+            const tempDiv = document.createElement('div');
+            tempDiv.style.padding = '20px';
+            tempDiv.style.fontFamily = 'Inter, sans-serif';
+
+            let tableHtml = `
+                <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; color: #1f2937;">Admission Applications Report</h1>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 2px solid #edf2f7;">
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">App No</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Name</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">DOB</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Email</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Phone</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Last Exam</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Percentage/CGPA</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Submitted At</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            dataToExport.forEach(item => {
+                tableHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.applicationNo}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.fullName}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.email}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.status}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            tempDiv.innerHTML = tableHtml;
+            document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
+
+            const opt = {
+                margin: 0.5,
+                filename: 'admission_applications.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } // Landscape for wider tables
+            };
+
+            html2pdf().from(tempDiv).set(opt).save().then(() => {
+                tempDiv.remove(); // Remove temporary div after PDF generation
+            });
+        });
 
     </script>
 </body>
