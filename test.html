@@ -175,7 +175,7 @@
 
     <div class="container mx-auto px-4 py-8">
         <div class="header-gradient">
-            <h1 class="text-3xl font-bold">Admission Applications Dashboard</h1>
+            <h1 class="text-3xl font-bold">MZR ACADEMY Admission Applications Dashboard</h1>
             <div class="flex items-center space-x-4">
                 <button id="refresh-btn" class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors shadow-md" title="Refresh Applications">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 4l16 16"/></svg>
@@ -696,12 +696,16 @@
 
             // Create a temporary div to render the table for PDF
             const tempDiv = document.createElement('div');
+            tempDiv.style.width = '100%'; /* Ensure it takes full width for responsive layout */
             tempDiv.style.padding = '20px';
             tempDiv.style.fontFamily = 'Inter, sans-serif';
+            tempDiv.style.boxSizing = 'border-box'; /* Include padding in the width */
 
             let tableHtml = `
-                <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; color: #1f2937;">Admission Applications Report</h1>
-                <table style="width: 100%; border-collapse: collapse;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="font-size: 24px; font-weight: bold; color: #1f2937;">Admission Applications Report</h1>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #f8fafc; border-bottom: 2px solid #edf2f7;">
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">App No</th>
@@ -724,7 +728,7 @@
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.applicationNo}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.fullName}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568; word-wrap: break-word; max-width: 150px;">${item.email}</td> <!-- Added word-wrap for email -->
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568; word-wrap: break-word; max-width: 120px;">${item.email}</td> <!-- Adjusted max-width for better alignment -->
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
@@ -737,7 +741,7 @@
             tableHtml += `
                     </tbody>
                 </table>
-                <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
+                <div style="text-align: center; margin-top: auto; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
             `;
             tempDiv.innerHTML = tableHtml;
             document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
@@ -774,6 +778,8 @@
             tempDiv.style.border = '2px solid #4c51bf'; // Border for admit card
             tempDiv.style.borderRadius = '10px';
             tempDiv.style.backgroundColor = '#ffffff';
+            tempDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'; /* Added shadow for better design */
+
 
             const schoolName = "MZR Public School"; // Example School Name
             const examDate = "2025-08-15"; // Placeholder Exam Date
@@ -787,8 +793,8 @@
                     <h2 style="font-size: 22px; font-weight: bold; color: #1f2937; margin-bottom: 15px;">ADMIT CARD</h2>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
-                    <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
                         <p style="font-size: 16px; margin-bottom: 8px;"><strong>Application No:</strong> ${applicationData.applicationNo}</p>
                         <p style="font-size: 16px; margin-bottom: 8px;"><strong>Student Name:</strong> ${applicationData.fullName}</p>
                         <p style="font-size: 16px; margin-bottom: 8px;"><strong>Date of Birth:</strong> ${applicationData.dob}</p>
@@ -796,7 +802,7 @@
                         <p style="font-size: 16px; margin-bottom: 8px;"><strong>Phone:</strong> ${applicationData.phone}</p>
                         <p style="font-size: 16px; margin-bottom: 8px;"><strong>Address:</strong> ${applicationData.address}</p>
                     </div>
-                    <div style="width: 150px; height: 200px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="width: 150px; height: 200px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-left: 20px;">
                         <img src="${applicationData.photoUrl}" alt="Student Photo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/150x200?text=Student+Photo'">
                     </div>
                 </div>
