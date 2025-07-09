@@ -3,299 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Admission Applications</title>
+    <title>Application Status & Admit Card</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- For PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .modal-backdrop { z-index: 50; }
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+        .card-container { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 600; }
         .status-Submitted { background-color: #e0e7ff; color: #4338ca; }
         .status-Under-Review { background-color: #fef3c7; color: #b45309; }
         .status-Accepted { background-color: #d1fae5; color: #065f46; }
         .status-Rejected { background-color: #fee2e2; color: #991b1b; }
 
-        /* Modern Admin Portal Design */
-        .header-gradient {
-            background: linear-gradient(to right, #4c51bf, #6b46c1); /* Deep purple to indigo */
-            color: white;
-            padding: 1.5rem 2rem;
-            border-radius: 0.75rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .card {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-        }
-        .table-header th {
-            background-color: #f8fafc; /* Light gray for table header */
-            font-weight: 700;
-            color: #4a5568;
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 2px solid #edf2f7;
-        }
-        .table-row td {
-            padding: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-            color: #4a5568;
-        }
-        .table-row:last-child td {
-            border-bottom: none;
-        }
-        .action-button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-        }
-        .action-button.view {
-            background-color: #e0e7ff;
-            color: #4338ca;
-        }
-        .action-button.view:hover {
-            background-color: #c7d2fe;
-        }
-        .action-button.export {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .action-button.export:hover {
-            background-color: #a7f3d0;
-        }
-        .action-button.pdf {
-            background-color: #ffe0b2; /* Light orange */
-            color: #e65100; /* Dark orange */
-        }
-        .action-button.pdf:hover {
-            background-color: #ffcc80;
-        }
-        .action-button.delete-selected {
-            background-color: #fca5a5; /* Red-300 */
-            color: #b91c1c; /* Red-700 */
-        }
-        .action-button.delete-selected:hover {
-            background-color: #ef4444; /* Red-500 */
-            color: white;
-        }
-        .action-button.admit-card {
-            background-color: #bfdbfe; /* Blue-200 */
-            color: #1e40af; /* Blue-800 */
-        }
-        .action-button.admit-card:hover {
-            background-color: #93c5fd; /* Blue-300 */
-        }
-        .modal-content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        .modal-content-grid p strong {
-            color: #2d3748; /* Darker text for labels */
-        }
-        .modal-content-grid img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        @media (min-width: 768px) {
-            .control-group {
-                flex-direction: row;
-                align-items: center;
-            }
-        }
-        /* Custom Confirmation Modal */
-        .confirmation-modal-content {
-            background-color: #fff;
+        /* Admit Card Specific Styles for better PDF output */
+        #admit-card-content {
+            border: 2px solid #e2e8f0; /* Light border around the card */
             padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners */
+            position: relative;
+            overflow: hidden; /* Ensures background elements don't spill */
         }
-        .confirmation-modal-content h3 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #dc2626; /* Red-600 */
+        #admit-card-content::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #bfdbfe 0%, transparent 70%); /* Subtle top-left gradient */
+            opacity: 0.3;
+            z-index: 0;
+        }
+        #admit-card-content::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #d1fae5 0%, transparent 70%); /* Subtle bottom-right gradient */
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .admit-card-header {
+            background-color: #1e3a8a; /* Dark blue header */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1; /* Ensure header is above pseudo-elements */
+        }
+        .admit-card-header h2 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+        }
+        .admit-card-header p {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #bfdbfe; /* Light blue for subtitle */
+        }
+        .admit-card-section-title {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #1f2937; /* Gray-800 */
+            border-bottom: 2px solid #e5e7eb; /* Light gray border */
+            padding-bottom: 0.5rem;
             margin-bottom: 1rem;
         }
-        .confirmation-modal-content p {
-            color: #4a5568;
-            margin-bottom: 1.5rem;
-        }
-        .confirmation-modal-buttons {
+        .admit-card-info p {
             display: flex;
-            justify-content: space-around;
-            gap: 1rem;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb; /* Dashed line for separation */
         }
-        .confirmation-modal-buttons button {
-            padding: 0.75rem 1.5rem;
+        .admit-card-info p:last-child {
+            border-bottom: none;
+        }
+        .admit-card-info strong {
+            color: #4b5563; /* Gray-700 */
+        }
+        .admit-card-photo {
+            border: 3px solid #60a5fa; /* Blue border for photo */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .admit-card-instructions {
+            background-color: #f9fafb; /* Light background for instructions */
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #3b82f6; /* Blue left border */
+            padding: 1rem;
             border-radius: 0.5rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .admit-card-instructions h3 {
+            font-size: 1.125rem;
             font-weight: 600;
-            transition: all 0.2s ease-in-out;
+            color: #1e40af; /* Darker blue for instruction title */
+            margin-bottom: 0.75rem;
         }
-        .confirmation-modal-buttons .confirm-btn {
-            background-color: #dc2626; /* Red-600 */
-            color: white;
+        .admit-card-instructions ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            color: #4b5563;
         }
-        .confirmation-modal-buttons .confirm-btn:hover {
-            background-color: #b91c1c; /* Red-700 */
-        }
-        .confirmation-modal-buttons .cancel-btn {
-            background-color: #e2e8f0; /* Gray-200 */
-            color: #4a5568;
-        }
-        .confirmation-modal-buttons .cancel-btn:hover {
-            background-color: #cbd5e0; /* Gray-300 */
+        .admit-card-instructions li {
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="header-gradient">
-            <h1 class="text-3xl font-bold">MZR ACADEMY Admission Applications Dashboard</h1>
-            <div class="flex items-center space-x-4">
-                <button id="refresh-btn" class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors shadow-md" title="Refresh Applications">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 4l16 16"/></svg>
-                </button>
-                <button id="logout-btn" class="bg-red-400 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 transition-colors shadow-md">Logout</button>
+    <div class="container mx-auto px-4 py-12">
+        <!-- Status Check Section -->
+        <div id="status-check-section" class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Check Application Status</h1>
+                <p class="text-gray-500 mt-2">Enter your details to view your application status.</p>
             </div>
+            <form id="status-form">
+                <div class="space-y-6">
+                    <div>
+                        <label for="applicationNo" class="block text-sm font-medium text-gray-700">Application Number</label>
+                        <input type="text" id="applicationNo" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                        <input type="date" id="dob" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <button type="submit" id="check-status-btn" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Check Status</button>
+                </div>
+            </form>
         </div>
 
-        <!-- Filter, Search and Export Section -->
-        <div class="card mb-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
-            <div class="w-full md:w-1/3 control-group">
-                <label for="status-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Status:</label>
-                <select id="status-filter" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="All">All</option>
-                    <option value="Submitted">Submitted</option>
-                    <option value="Under Review">Under Review</option>
-                    <option value="Accepted">Accepted</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
+        <!-- Status Display Section -->
+        <div id="status-display-section" class="hidden max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-800">Your Application Status</h2>
+            <div class="my-6">
+                <p class="text-lg text-gray-600">Hello, <span id="status-name" class="font-bold"></span>!</p>
+                <p class="mt-2 text-lg text-gray-600">Your application status is:</p>
+                <div class="mt-2 inline-block"><span id="status-badge" class="text-lg status-badge"></span></div>
             </div>
-            <div class="w-full md:w-1/3 control-group">
-                <label for="search-input" class="text-sm font-medium text-gray-700 whitespace-nowrap">Search (App No, Name):</label>
-                <input type="text" id="search-input" placeholder="Enter application number or name..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="w-full md:w-1/3 flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <button id="export-csv-btn" class="action-button export w-full">Export CSV</button>
-                <button id="export-pdf-btn" class="action-button pdf w-full">Export PDF</button>
-            </div>
-        </div>
-        
-        <!-- Delete Selected Button -->
-        <div class="card mb-6 p-4 text-center">
-            <button id="delete-selected-btn" class="action-button delete-selected w-full md:w-auto px-8 py-3" disabled>Delete Selected Applications</button>
-            <p class="text-sm text-gray-500 mt-2">Select applications using the checkboxes below to delete.</p>
+            <div id="status-message" class="p-4 bg-gray-100 rounded-lg text-gray-700"></div>
+            <button id="download-admit-card-btn" class="hidden mt-6 w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Download Admit Card</button>
+            <button id="back-to-check-btn" class="mt-4 w-full bg-gray-600 text-white font-semibold py-3 rounded-lg hover:bg-gray-700 transition-colors">Check Another Application</button>
         </div>
 
+        <!-- Admit Card Display -->
+        <div id="admit-card-display" class="hidden max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8">
+             <div id="admit-card-content">
+                <div class="admit-card-header">
+                    <h2>ABC School Admissions</h2>
+                    <p>Entrance Test - Admit Card</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                    <div class="md:col-span-2 space-y-4 text-gray-700 admit-card-info">
+                        <h3 class="admit-card-section-title">Candidate Details</h3>
+                        <p><strong>Roll Number:</strong> <span id="card-roll-no"></span></p>
+                        <p><strong>Candidate Name:</strong> <span id="card-name"></span></p>
+                        <p><strong>Date of Birth:</strong> <span id="card-dob"></span></p>
+                        <p><strong>Application Number:</strong> <span id="card-app-no"></span></p>
+                    </div>
+                    <div class="flex flex-col items-center relative z-10">
+                        <img id="card-photo" src="https://placehold.co/150x200" alt="Candidate Photo" class="w-36 h-48 object-cover rounded-lg admit-card-photo">
+                        <p class="text-sm text-gray-500 mt-2">Candidate Photo</p>
+                    </div>
+                </div>
 
-        <!-- Applications Table -->
-        <div class="card overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full table-auto">
-                    <thead class="table-header">
-                        <tr>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600 w-12">
-                                <input type="checkbox" id="select-all-checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded">
-                            </th>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Application No</th>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Name</th>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Submitted At</th>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Status</th>
-                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applications-table-body">
-                        <!-- Loading spinner -->
-                        <tr><td colspan="6" class="text-center p-8" id="loading-state">
-                            <div class="flex justify-center items-center"><svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>
-                        </td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                <div class="mt-8 relative z-10">
+                    <h3 class="admit-card-section-title">Examination Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 admit-card-info">
+                        <p><strong>Exam Date:</strong> <span>September 15, 2025</span></p>
+                        <p><strong>Exam Time:</strong> <span>10:00 AM - 12:00 PM</span></p>
+                        <p class="md:col-span-2"><strong>Exam Center:</strong> <span>ABC School Main Campus, Auditorium A, 123 School Road, City, State, 12345</span></p>
+                    </div>
+                </div>
 
-    <!-- Details Modal -->
-    <div id="details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center hidden modal-backdrop">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full m-4">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-semibold text-gray-800">Application Details</h3>
-                <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
-            </div>
-            <div id="modal-content" class="max-h-[70vh] overflow-y-auto pr-4">
-                <!-- Content will be injected by JS -->
-            </div>
-            <div class="mt-6 flex flex-col md:flex-row items-center gap-4">
-                 <select id="status-select" class="w-full md:w-1/2 block px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
-                    <option value="Submitted">Submitted</option>
-                    <option value="Under Review">Under Review</option>
-                    <option value="Accepted">Accepted</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
-                <button id="update-status-btn" class="w-full md:w-1/2 bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Update Status</button>
-                <button id="generate-admit-card-btn" class="w-full md:w-1/2 action-button admit-card py-3 rounded-lg hidden">Generate Admit Card</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Alert/Message Box -->
-    <div id="custom-alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-            <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
-            <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-        </div>
-    </div>
-
-    <!-- Custom Confirmation Modal (for Delete Selected) -->
-    <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
-        <div class="confirmation-modal-content">
-            <h3>Confirm Deletion</h3>
-            <p id="confirmation-message">Are you sure you want to delete the selected applications? This action cannot be undone.</p>
-            <div class="confirmation-modal-buttons">
-                <button id="confirm-delete-btn" class="confirm-btn">Yes, Delete</button>
-                <button id="cancel-delete-btn" class="cancel-btn">Cancel</button>
+                <div class="admit-card-instructions mt-8">
+                    <h3>Important Instructions:</h3>
+                    <ul>
+                        <li>Candidates must carry this admit card and a valid photo ID to the examination center.</li>
+                        <li>Report to the examination center at least 30 minutes before the exam time.</li>
+                        <li>No electronic gadgets or study materials are allowed inside the examination hall.</li>
+                        <li>Follow all COVID-19 safety protocols as per government guidelines.</li>
+                        <li>Any form of malpractice will lead to immediate disqualification.</li>
+                    </ul>
+                </div>
+                <div class="mt-8 text-center text-gray-500 text-sm relative z-10">
+                    <p>This is a system-generated admit card. No signature is required.</p>
+                    <p>For any queries, please contact the admissions office.</p>
+                </div>
+             </div>
+            <div class="mt-8 text-center">
+                <button id="pdf-download-btn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors">Download as PDF</button>
+                <button id="back-to-status-btn" class="ml-4 bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-gray-700 transition-colors">Back</button>
             </div>
         </div>
     </div>
-
-    <footer class="mt-8 py-4 text-center text-gray-600 text-sm">
-        Developed by MZR WEB SOLUTIONS
-    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase configuration (replace with your actual API Key if different)
+        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", 
+            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
             authDomain: "schooladmsn.firebaseapp.com",
             projectId: "schooladmsn",
             storageBucket: "schooladmsn.firebasestorage.app",
@@ -303,556 +221,163 @@
             appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
             measurementId: "G-LJW1ZQTGSV"
         };
+        // --- END OF FIREBASE CONFIGURATION ---
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
-        // DOM Elements
-        const tableBody = document.getElementById('applications-table-body');
-        const loadingState = document.getElementById('loading-state');
-        const modal = document.getElementById('details-modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        const updateStatusBtn = document.getElementById('update-status-btn');
-        const statusSelect = document.getElementById('status-select');
-        const refreshBtn = document.getElementById('refresh-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const statusFilter = document.getElementById('status-filter');
-        const searchInput = document.getElementById('search-input');
-        const exportCsvBtn = document.getElementById('export-csv-btn');
-        const exportPdfBtn = document.getElementById('export-pdf-btn');
-        const customAlertModal = document.getElementById('custom-alert-modal');
-        const customAlertMessage = document.getElementById('custom-alert-message');
-        const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
-        const deleteSelectedBtn = document.getElementById('delete-selected-btn'); 
-        const selectAllCheckbox = document.getElementById('select-all-checkbox'); 
-        const confirmationModal = document.getElementById('confirmation-modal');
-        const confirmationMessage = document.getElementById('confirmation-message');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const generateAdmitCardBtn = document.getElementById('generate-admit-card-btn'); // New Admit Card Button
+        // Sections
+        const statusCheckSection = document.getElementById('status-check-section');
+        const statusDisplaySection = document.getElementById('status-display-section');
+        const admitCardDisplay = document.getElementById('admit-card-display');
 
+        // Forms and Buttons
+        const statusForm = document.getElementById('status-form');
+        const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
+        const backToCheckBtn = document.getElementById('back-to-check-btn');
+        const pdfDownloadBtn = document.getElementById('pdf-download-btn');
+        const backToStatusBtn = document.getElementById('back-to-status-btn');
 
-        let currentEditingDocId = null;
-        let allApplications = []; // Store all applications for filtering/searching
+        let currentApplicationData = null;
 
-        // --- Authentication Check ---
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                // User is not logged in, redirect to login page
-                window.location.href = 'admin-login.html';
-            } else {
-                // User is logged in, fetch applications
-                fetchApplications();
-            }
-        });
+        statusForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Show a loading indicator (optional, but good for UX)
+            const checkStatusBtn = document.getElementById('check-status-btn');
+            checkStatusBtn.textContent = 'Checking...';
+            checkStatusBtn.disabled = true;
 
-        // Logout functionality
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                // Redirect to login page after logout
-                window.location.href = 'admin-login.html';
-            } catch (error) {
-                console.error("Error logging out: ", error);
-                showCustomAlert("Failed to log out. Please try again.");
-            }
-        });
+            const appNo = document.getElementById('applicationNo').value.trim();
+            const dob = document.getElementById('dob').value;
 
-        // Fetches all applications from Firestore
-        async function fetchApplications() {
-            loadingState.parentElement.classList.remove('hidden');
-            tableBody.innerHTML = ''; // Clear existing rows
-            tableBody.appendChild(loadingState.parentElement);
-
-            try {
-                // Order by submittedAt for consistent display
-                const q = query(collection(db, "applications"), orderBy("submittedAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                
-                loadingState.parentElement.classList.add('hidden');
-                
-                if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">No applications found.</td></tr>';
-                    allApplications = [];
-                    return;
-                }
-
-                allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                applyFiltersAndSearch(); // Render all initially, applying any active filters/search
-            } catch (error) {
-                console.error("Error fetching applications: ", error);
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-500">Error loading data. Please try again.</td></tr>';
-                allApplications = [];
-            }
-        }
-
-        // Renders applications to the table
-        function renderApplications(applicationsToRender) {
-            tableBody.innerHTML = ''; // Clear table before rendering
-            if (applicationsToRender.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">No matching applications found.</td></tr>';
-                deleteSelectedBtn.disabled = true; // Disable delete button if no applications
-                selectAllCheckbox.checked = false; // Uncheck select all
+            if (!appNo || !dob) {
+                // Use a custom modal or message box instead of alert
+                showCustomAlert("Please enter both Application Number and Date of Birth.");
+                checkStatusBtn.textContent = 'Check Status';
+                checkStatusBtn.disabled = false;
                 return;
             }
 
-            applicationsToRender.forEach((data) => {
-                const row = document.createElement('tr');
-                row.className = 'table-row'; // Apply new class for styling
-                row.innerHTML = `
-                    <td class="p-4 text-sm">
-                        <input type="checkbox" class="application-checkbox form-checkbox h-4 w-4 text-blue-600 rounded" data-id="${data.id}">
-                    </td>
-                    <td class="p-4 text-sm">${data.applicationNo}</td>
-                    <td class="p-4 text-sm">${data.fullName}</td>
-                    <td class="p-4 text-sm">${data.submittedAt ? new Date(data.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
-                    <td class="p-4 text-sm"><span class="status-badge status-${data.status.replace(/ /g, '-')}">${data.status}</span></td>
-                    <td class="p-4 text-sm">
-                        <button class="view-btn action-button view" data-id="${data.id}">View</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-            updateDeleteButtonState(); // Update delete button state after rendering
-            // Add event listeners to new "View" buttons
-            document.querySelectorAll('.view-btn').forEach(button => {
-                button.addEventListener('click', () => viewDetails(button.dataset.id));
-            });
-            // Add event listeners to new checkboxes
-            document.querySelectorAll('.application-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updateDeleteButtonState);
-            });
-        }
-
-        // Applies filters and search to the applications data
-        function applyFiltersAndSearch() {
-            let filteredApplications = [...allApplications]; // Start with a copy of all applications
-
-            const selectedStatus = statusFilter.value;
-            const searchTerm = searchInput.value.toLowerCase().trim();
-
-            // Filter by status
-            if (selectedStatus !== 'All') {
-                filteredApplications = filteredApplications.filter(app => app.status === selectedStatus);
-            }
-
-            // Filter by search term (application number or full name)
-            if (searchTerm) {
-                filteredApplications = filteredApplications.filter(app =>
-                    app.applicationNo.toLowerCase().includes(searchTerm) ||
-                    app.fullName.toLowerCase().includes(searchTerm)
-                );
-            }
-            renderApplications(filteredApplications);
-        }
-
-        // Displays application details in a modal
-        function viewDetails(docId) {
-            currentEditingDocId = docId;
-            const data = allApplications.find(app => app.id === docId);
-            if (!data) return;
-            
-            modalContent.innerHTML = `
-                <div class="modal-content-grid">
-                    <p><strong>Name:</strong> ${data.fullName}</p>
-                    <p><strong>App No:</strong> ${data.applicationNo}</p>
-                    <p><strong>DOB:</strong> ${data.dob}</p>
-                    <p><strong>Email:</strong> ${data.email}</p>
-                    <p><strong>Phone:</strong> ${data.phone}</p>
-                    <p class="md:col-span-2"><strong>Address:</strong> ${data.address}</p>
-                    <p><strong>Last Exam:</strong> ${data.lastPassedExam || 'N/A'}</p>
-                    <p><strong>Percentage/CGPA:</strong> ${data.percentageCgpa || 'N/A'}</p>
-                    <div class="md:col-span-2">
-                        <strong>Photo:</strong>
-                        <img src="${data.photoUrl}" alt="Photo of ${data.fullName}" class="mt-2" onerror="this.src='https://placehold.co/150x200?text=Image+Not+Found'">
-                    </div>
-                </div>
-            `;
-            statusSelect.value = data.status;
-            
-            // Show/hide admit card button based on status
-            if (data.status === 'Accepted') {
-                generateAdmitCardBtn.classList.remove('hidden');
-                generateAdmitCardBtn.onclick = () => generateAdmitCardPdf(data); // Set data for admit card generation
-            } else {
-                generateAdmitCardBtn.classList.add('hidden');
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        // Updates application status in Firestore
-        updateStatusBtn.addEventListener('click', async () => {
-            if (!currentEditingDocId) return;
-            const newStatus = statusSelect.value;
-            updateStatusBtn.textContent = 'Updating...';
-            updateStatusBtn.disabled = true;
-
             try {
-                const docRef = doc(db, "applications", currentEditingDocId);
-                await updateDoc(docRef, {
-                    status: newStatus
-                });
-                closeModal();
-                // Update the status in allApplications array directly for immediate UI update
-                const updatedAppIndex = allApplications.findIndex(app => app.id === currentEditingDocId);
-                if (updatedAppIndex > -1) {
-                    allApplications[updatedAppIndex].status = newStatus;
+                const q = query(collection(db, "applications"), where("applicationNo", "==", appNo), where("dob", "==", dob));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    showCustomAlert("Invalid details. Please check your Application Number and Date of Birth.");
+                    currentApplicationData = null;
+                } else {
+                    currentApplicationData = querySnapshot.docs[0].data();
+                    displayStatus(currentApplicationData);
                 }
-                // Re-render the table with the updated status by re-applying filters/search
-                applyFiltersAndSearch(); 
-                showCustomAlert("Application status updated successfully!");
             } catch (error) {
-                console.error("Error updating status: ", error);
-                showCustomAlert("Failed to update status.");
+                console.error("Error fetching application status: ", error);
+                showCustomAlert("An error occurred while checking status. Please try again.");
             } finally {
-                updateStatusBtn.textContent = 'Update Status';
-                updateStatusBtn.disabled = false;
+                checkStatusBtn.textContent = 'Check Status';
+                checkStatusBtn.disabled = false;
             }
         });
 
-        // Closes the details modal
-        function closeModal() {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            currentEditingDocId = null;
+        function displayStatus(data) {
+            document.getElementById('status-name').textContent = data.fullName;
+            const statusBadge = document.getElementById('status-badge');
+            statusBadge.textContent = data.status;
+            statusBadge.className = `text-lg status-badge status-${data.status.replace(' ', '-')}`;
+            
+            const statusMessage = document.getElementById('status-message');
+            downloadAdmitCardBtn.classList.add('hidden');
+
+            switch(data.status) {
+                case 'Submitted':
+                    statusMessage.textContent = 'Your application has been submitted and is awaiting review.';
+                    break;
+                case 'Under Review':
+                    statusMessage.textContent = 'Your application is currently being reviewed by the admission committee.';
+                    break;
+                case 'Accepted':
+                    statusMessage.textContent = 'Congratulations! Your application has been accepted for the entrance test. You can now download your admit card.';
+                    downloadAdmitCardBtn.classList.remove('hidden');
+                    break;
+                case 'Rejected':
+                    statusMessage.textContent = 'We regret to inform you that your application was not successful at this time.';
+                    break;
+                default:
+                    statusMessage.textContent = 'Unknown status. Please contact the admissions office for more information.';
+            }
+            statusCheckSection.classList.add('hidden');
+            statusDisplaySection.classList.remove('hidden');
         }
 
-        // Event Listeners for modal and filters
-        modalCloseBtn.addEventListener('click', closeModal);
-        refreshBtn.addEventListener('click', fetchApplications);
-        statusFilter.addEventListener('change', applyFiltersAndSearch);
-        searchInput.addEventListener('input', applyFiltersAndSearch);
+        downloadAdmitCardBtn.addEventListener('click', () => {
+            if (currentApplicationData) {
+                populateAdmitCard(currentApplicationData);
+                statusDisplaySection.classList.add('hidden');
+                admitCardDisplay.classList.remove('hidden');
+            } else {
+                showCustomAlert("No application data found to generate admit card.");
+            }
+        });
+
+        function populateAdmitCard(data) {
+            document.getElementById('card-roll-no').textContent = `ROLL${data.applicationNo.slice(-6)}`; // Example Roll No
+            document.getElementById('card-name').textContent = data.fullName;
+            document.getElementById('card-dob').textContent = new Date(data.dob + 'T00:00:00').toLocaleDateString('en-GB');
+            document.getElementById('card-app-no').textContent = data.applicationNo;
+            const photoEl = document.getElementById('card-photo');
+            photoEl.src = data.photoUrl;
+            photoEl.onerror = () => { photoEl.src = 'https://placehold.co/150x200?text=Photo'; };
+        }
+        
+        pdfDownloadBtn.addEventListener('click', () => {
+            const admitCardContent = document.getElementById('admit-card-content');
+            // Temporarily hide buttons for PDF generation
+            const buttonsToHide = document.querySelectorAll('#admit-card-display button');
+            buttonsToHide.forEach(btn => btn.style.display = 'none');
+
+            const opt = {
+                margin: 0.5,
+                filename: `Admit_Card_${currentApplicationData.applicationNo}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(admitCardContent).set(opt).save().then(() => {
+                // Show buttons again after PDF generation
+                buttonsToHide.forEach(btn => btn.style.display = '');
+            });
+        });
+
+        backToCheckBtn.addEventListener('click', () => {
+            statusDisplaySection.classList.add('hidden');
+            statusCheckSection.classList.remove('hidden');
+            statusForm.reset();
+            currentApplicationData = null; // Clear data on reset
+        });
+
+        backToStatusBtn.addEventListener('click', () => {
+            admitCardDisplay.classList.add('hidden');
+            statusDisplaySection.classList.remove('hidden');
+        });
 
         // Custom Alert/Message Box Function (replaces alert())
         function showCustomAlert(message) {
-            customAlertMessage.textContent = message;
-            customAlertModal.classList.remove('hidden');
-            customAlertModal.classList.add('flex');
-        }
+            const existingAlert = document.getElementById('custom-alert-modal');
+            if (existingAlert) existingAlert.remove();
 
-        customAlertOkBtn.addEventListener('click', () => {
-            customAlertModal.classList.add('hidden');
-            customAlertModal.classList.remove('flex');
-        });
-
-        // --- Select and Delete Functionality ---
-
-        selectAllCheckbox.addEventListener('change', () => {
-            const checkboxes = document.querySelectorAll('.application-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-            updateDeleteButtonState();
-        });
-
-        function updateDeleteButtonState() {
-            const checkboxes = document.querySelectorAll('.application-checkbox');
-            const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-            deleteSelectedBtn.disabled = !anyChecked;
-
-            // Update select all checkbox state
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            if (checkboxes.length > 0) { // Only update if there are applications
-                selectAllCheckbox.checked = allChecked;
-            } else {
-                selectAllCheckbox.checked = false;
-            }
-        }
-
-        deleteSelectedBtn.addEventListener('click', () => {
-            const selectedIds = Array.from(document.querySelectorAll('.application-checkbox:checked'))
-                                 .map(checkbox => checkbox.dataset.id);
-            
-            if (selectedIds.length === 0) {
-                showCustomAlert("Please select at least one application to delete.");
-                return;
-            }
-
-            confirmationMessage.textContent = `Are you sure you want to delete ${selectedIds.length} selected application(s)? This action cannot be undone.`;
-            confirmationModal.classList.remove('hidden');
-            confirmationModal.classList.add('flex');
-
-            // Store selected IDs temporarily for confirmation
-            confirmationModal.dataset.selectedIds = JSON.stringify(selectedIds);
-        });
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            confirmationModal.classList.add('hidden');
-            confirmationModal.classList.remove('flex');
-            confirmationModal.removeAttribute('data-selected-ids'); // Clear stored IDs
-        });
-
-        confirmDeleteBtn.addEventListener('click', async () => {
-            confirmationModal.classList.add('hidden');
-            confirmationModal.classList.remove('flex');
-            
-            const selectedIds = JSON.parse(confirmationModal.dataset.selectedIds || '[]');
-            if (selectedIds.length === 0) {
-                showCustomAlert("No applications selected for deletion.");
-                return;
-            }
-
-            showCustomAlert(`Deleting ${selectedIds.length} application(s)...`);
-            deleteSelectedBtn.disabled = true; // Disable button during deletion
-
-            try {
-                const deletePromises = [];
-                for (const id of selectedIds) {
-                    deletePromises.push(deleteDoc(doc(db, "applications", id)));
-                }
-
-                await Promise.all(deletePromises); // Wait for all delete operations to complete
-                showCustomAlert("Selected applications deleted successfully!");
-                
-                // Remove deleted items from allApplications array
-                allApplications = allApplications.filter(app => !selectedIds.includes(app.id));
-                
-                applyFiltersAndSearch(); // Refresh the table after deletion
-                selectAllCheckbox.checked = false; // Uncheck select all
-            } catch (error) {
-                console.error("Error deleting selected applications: ", error);
-                showCustomAlert("Failed to delete selected applications. Check console for details.");
-            } finally {
-                deleteSelectedBtn.disabled = false; // Re-enable button
-                confirmationModal.removeAttribute('data-selected-ids'); // Clear stored IDs
-            }
-        });
-
-
-        // --- Export Functions ---
-
-        // Function to convert data to CSV format
-        function convertToCsv(dataArray) {
-            if (dataArray.length === 0) return '';
-
-            // Define headers (order them as desired)
-            const headers = [
-                "Application No", "Full Name", "Date of Birth", "Email", "Phone",
-                "Address", "Photo URL", "Last Passed Exam", "Percentage/CGPA", "Submitted At", "Status"
-            ];
-            
-            // Map data to header order
-            const rows = dataArray.map(item => [
-                item.applicationNo,
-                item.fullName,
-                item.dob,
-                item.email,
-                item.phone,
-                `"${item.address.replace(/"/g, '""')}"`, // Handle commas/quotes in address
-                item.photoUrl,
-                item.lastPassedExam,
-                item.percentageCgpa,
-                item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A',
-                item.status
-            ]);
-
-            let csvContent = headers.join(',') + '\n';
-            rows.forEach(row => {
-                csvContent += row.map(field => {
-                    // Ensure fields with commas or quotes are properly escaped
-                    if (typeof field === 'string' && (field.includes(',') || field.includes('"') || field.includes('\n'))) {
-                        return `"${field.replace(/"/g, '""')}"`;
-                    }
-                    return field;
-                }).join(',') + '\n';
-            });
-            return csvContent;
-        }
-
-        // Function to download CSV
-        exportCsvBtn.addEventListener('click', () => {
-            const dataToExport = allApplications; // Export all data, or use filteredApplications if you want to export only currently displayed
-            if (dataToExport.length === 0) {
-                showCustomAlert("No data to export.");
-                return;
-            }
-            const csv = convertToCsv(dataToExport);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            if (link.download !== undefined) { // Feature detection for download attribute
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'admission_applications.csv');
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                showCustomAlert("Your browser does not support downloading CSV directly. Please copy the data manually.");
-            }
-        });
-
-        // Function to export to PDF (using html2pdf.js) for the Admin Dashboard Report
-        exportPdfBtn.addEventListener('click', () => {
-            const dataToExport = allApplications; // Export all, or filteredApplications
-            if (dataToExport.length === 0) {
-                showCustomAlert("No data to export.");
-                return;
-            }
-
-            // Create a temporary div to render the table for PDF
-            const tempDiv = document.createElement('div');
-            tempDiv.style.width = '100%'; /* Ensure it takes full width for responsive layout */
-            tempDiv.style.padding = '20px';
-            tempDiv.style.fontFamily = 'Inter, sans-serif';
-            tempDiv.style.boxSizing = 'border-box'; /* Include padding in the width */
-
-            let tableHtml = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h1 style="font-size: 24px; font-weight: bold; color: #1f2937;">Admission Applications Report</h1>
+            const alertModal = document.createElement('div');
+            alertModal.id = 'custom-alert-modal';
+            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
+            alertModal.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
+                    <p class="text-gray-600 mb-6">${message}</p>
+                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <thead>
-                        <tr style="background-color: #f8fafc; border-bottom: 2px solid #edf2f7;">
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">App No</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Name</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">DOB</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Email</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Phone</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Last Exam</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Percentage/CGPA</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Submitted At</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
             `;
+            document.body.appendChild(alertModal);
 
-            dataToExport.forEach(item => {
-                tableHtml += `
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.applicationNo}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.fullName}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568; word-wrap: break-word; max-width: 120px;">${item.email}</td> <!-- Adjusted max-width for better alignment -->
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.status}</td>
-                    </tr>
-                `;
-            });
-
-            tableHtml += `
-                    </tbody>
-                </table>
-                <div style="text-align: center; margin-top: auto; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
-            `;
-            tempDiv.innerHTML = tableHtml;
-            document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
-
-            const opt = {
-                margin: 0.5,
-                filename: 'admission_applications.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } // Landscape for wider tables
-            };
-
-            html2pdf().from(tempDiv).set(opt).save().then(() => {
-                tempDiv.remove(); // Remove temporary div after PDF generation
-            });
-        });
-
-        // --- New Function for Admit Card PDF Generation ---
-        async function generateAdmitCardPdf(applicationData) {
-            // Close the details modal first
-            closeModal(); 
-            showCustomAlert("Generating Admit Card PDF...");
-
-            // Create a temporary div to render the admit card for PDF
-            const tempDiv = document.createElement('div');
-            tempDiv.style.width = '8.5in'; // Standard letter size width
-            tempDiv.style.height = '11in'; // Standard letter size height
-            tempDiv.style.padding = '0.75in'; // Margin for the PDF
-            tempDiv.style.fontFamily = 'Inter, sans-serif';
-            tempDiv.style.boxSizing = 'border-box';
-            tempDiv.style.display = 'flex';
-            tempDiv.style.flexDirection = 'column';
-            tempDiv.style.justifyContent = 'space-between';
-            tempDiv.style.border = '2px solid #4c51bf'; // Border for admit card
-            tempDiv.style.borderRadius = '10px';
-            tempDiv.style.backgroundColor = '#ffffff';
-            tempDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'; /* Added shadow for better design */
-
-
-            const schoolName = "MZR Public School"; // Example School Name
-            const examDate = "2025-08-15"; // Placeholder Exam Date
-            const examTime = "10:00 AM - 12:00 PM"; // Placeholder Exam Time
-            const examVenue = "School Auditorium, 123 Main Street, City, State"; // Placeholder Exam Venue
-
-            const admitCardHtml = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://placehold.co/100x100/4c51bf/ffffff?text=SCHOOL+LOGO" alt="School Logo" style="height: 80px; margin-bottom: 10px;">
-                    <h1 style="font-size: 28px; font-weight: bold; color: #4c51bf; margin-bottom: 5px;">${schoolName}</h1>
-                    <h2 style="font-size: 22px; font-weight: bold; color: #1f2937; margin-bottom: 15px;">ADMIT CARD</h2>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 250px;">
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Application No:</strong> ${applicationData.applicationNo}</p>
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Student Name:</strong> ${applicationData.fullName}</p>
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Date of Birth:</strong> ${applicationData.dob}</p>
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Email:</strong> ${applicationData.email}</p>
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Phone:</strong> ${applicationData.phone}</p>
-                        <p style="font-size: 16px; margin-bottom: 8px;"><strong>Address:</strong> ${applicationData.address}</p>
-                    </div>
-                    <div style="width: 150px; height: 200px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-left: 20px;">
-                        <img src="${applicationData.photoUrl}" alt="Student Photo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/150x200?text=Student+Photo'">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 30px; padding: 15px; background-color: #f0f4f8; border-left: 5px solid #4c51bf; border-radius: 5px;">
-                    <h3 style="font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 10px;">Entrance Examination Details:</h3>
-                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Date:</strong> ${examDate}</p>
-                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Time:</strong> ${examTime}</p>
-                    <p style="font-size: 16px; margin-bottom: 5px;"><strong>Venue:</strong> ${examVenue}</p>
-                </div>
-
-                <div style="margin-bottom: 30px;">
-                    <h3 style="font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 10px;">Important Instructions:</h3>
-                    <ul style="list-style-type: disc; margin-left: 20px; font-size: 14px; color: #4a5568;">
-                        <li style="margin-bottom: 5px;">Candidates must bring this Admit Card to the examination hall.</li>
-                        <li style="margin-bottom: 5px;">Arrive at least 30 minutes before the scheduled exam time.</li>
-                        <li style="margin-bottom: 5px;">No electronic devices are allowed inside the examination hall.</li>
-                        <li style="margin-bottom: 5px;">Please carry a valid photo ID proof along with this admit card.</li>
-                    </ul>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 20px; border-top: 1px dashed #cbd5e0;">
-                    <div style="text-align: left;">
-                        <p style="font-size: 14px; color: #4a5568;">Principal's Signature</p>
-                        <img src="https://placehold.co/120x60/ffffff/000000?text=Signature" alt="Principal Signature" style="height: 50px; margin-top: 5px; border-bottom: 1px solid #000;">
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="font-size: 12px; color: #6b7280;">Date: ${new Date().toLocaleDateString()}</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #6b7280;">Developed by MZR WEB SOLUTIONS</div>
-            `;
-            tempDiv.innerHTML = admitCardHtml;
-            document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
-
-            const opt = {
-                margin: 0.5,
-                filename: `Admit_Card_${applicationData.applicationNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } // Portrait for admit card
-            };
-
-            html2pdf().from(tempDiv).set(opt).save().then(() => {
-                tempDiv.remove(); // Remove temporary div after PDF generation
-                showCustomAlert("Admit Card PDF generated successfully!");
-            }).catch(error => {
-                console.error("Error generating Admit Card PDF: ", error);
-                showCustomAlert("Failed to generate Admit Card PDF.");
+            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
+                alertModal.remove();
             });
         }
 
