@@ -376,12 +376,13 @@
                     status: newStatus
                 });
                 closeModal();
-                // Update the status in allApplications array directly for immediate UI update
+                // FIX: Update the status in allApplications array directly for immediate UI update
                 const updatedAppIndex = allApplications.findIndex(app => app.id === currentEditingDocId);
                 if (updatedAppIndex > -1) {
                     allApplications[updatedAppIndex].status = newStatus;
                 }
-                applyFiltersAndSearch(); // Re-render the table with the updated status
+                // Re-render the table with the updated status by re-applying filters/search
+                applyFiltersAndSearch(); 
                 showCustomAlert("Application status updated successfully!");
             } catch (error) {
                 console.error("Error updating status: ", error);
