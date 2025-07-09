@@ -3,153 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MZR School Admission Application</title>
+    <title>Admin Dashboard - Admission Applications</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- For PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .form-container { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
         .modal-backdrop { z-index: 50; }
-        .file-upload-preview {
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-Submitted { background-color: #e0e7ff; color: #4338ca; }
+        .status-Under-Review { background-color: #fef3c7; color: #b45309; }
+        .status-Accepted { background-color: #d1fae5; color: #065f46; }
+        .status-Rejected { background-color: #fee2e2; color: #991b1b; }
+
+        /* Modern Admin Portal Design */
+        .header-gradient {
+            background: linear-gradient(to right, #4c51bf, #6b46c1); /* Deep purple to indigo */
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.75rem;
-            margin-top: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        .file-upload-preview img {
-            width: 4rem; /* 64px */
-            height: 4rem; /* 64px */
-            object-fit: cover;
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+        .table-header th {
+            background-color: #f8fafc; /* Light gray for table header */
+            font-weight: 700;
+            color: #4a5568;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .table-row td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        .table-row:last-child td {
+            border-bottom: none;
+        }
+        .action-button {
+            padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
         }
-        .file-upload-preview .file-name {
-            font-size: 0.875rem; /* text-sm */
-            color: #4b5563; /* gray-700 */
+        .action-button.view {
+            background-color: #e0e7ff;
+            color: #4338ca;
         }
-        .file-upload-progress {
-            width: 100%;
-            background-color: #e0e7ff; /* blue-100 */
-            border-radius: 9999px; /* rounded-full */
-            height: 0.5rem; /* 8px */
-            margin-top: 0.5rem;
-            overflow: hidden;
+        .action-button.view:hover {
+            background-color: #c7d2fe;
         }
-        .file-upload-progress-bar {
-            height: 100%;
-            background-color: #3b82f6; /* blue-500 */
-            width: 0%;
-            transition: width 0.2s ease-in-out;
+        .action-button.export {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .action-button.export:hover {
+            background-color: #a7f3d0;
+        }
+        .action-button.pdf {
+            background-color: #ffe0b2; /* Light orange */
+            color: #e65100; /* Dark orange */
+        }
+        .action-button.pdf:hover {
+            background-color: #ffcc80;
+        }
+        .action-button.delete-selected {
+            background-color: #fca5a5; /* Red-300 */
+            color: #b91c1c; /* Red-700 */
+        }
+        .action-button.delete-selected:hover {
+            background-color: #ef4444; /* Red-500 */
+            color: white;
+        }
+        .modal-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .modal-content-grid p strong {
+            color: #2d3748; /* Darker text for labels */
+        }
+        .modal-content-grid img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            .control-group {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        /* Custom Confirmation Modal */
+        .confirmation-modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .confirmation-modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc2626; /* Red-600 */
+            margin-bottom: 1rem;
+        }
+        .confirmation-modal-content p {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+        }
+        .confirmation-modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+        .confirmation-modal-buttons button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .confirmation-modal-buttons .confirm-btn {
+            background-color: #dc2626; /* Red-600 */
+            color: white;
+        }
+        .confirmation-modal-buttons .confirm-btn:hover {
+            background-color: #b91c1c; /* Red-700 */
+        }
+        .confirmation-modal-buttons .cancel-btn {
+            background-color: #e2e8f0; /* Gray-200 */
+            color: #4a5568;
+        }
+        .confirmation-modal-buttons .cancel-btn:hover {
+            background-color: #cbd5e0; /* Gray-300 */
         }
     </style>
 </head>
 <body class="bg-gray-50">
 
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl form-container">
-            
-            <div class="text-center mb-10">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Admission Application Form</h1>
-                <p class="text-gray-500 mt-3">Please fill out the details below accurately.</p>
+    <div class="container mx-auto px-4 py-8">
+        <div class="header-gradient">
+            <h1 class="text-3xl font-bold">Admission Applications Dashboard</h1>
+            <div class="flex items-center space-x-4">
+                <button id="refresh-btn" class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors shadow-md" title="Refresh Applications">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 4l16 16"/></svg>
+                </button>
+                <button id="logout-btn" class="bg-red-400 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 transition-colors shadow-md">Logout</button>
             </div>
-
-            <form id="admission-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <div>
-                        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input type="text" id="fullName" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                        <input type="date" id="dob" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                        <input type="email" id="email" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                        <input type="tel" id="phone" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="address" class="block text-sm font-medium text-gray-700">Full Address</label>
-                        <textarea id="address" rows="3" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                    </div>
-                    <!-- Photo Upload Field -->
-                    <div class="md:col-span-2">
-                        <label for="photoUpload" class="block text-sm font-medium text-gray-700">Upload Passport Size Photo <span class="text-red-500">*</span></label>
-                        <input type="file" id="photoUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
-                        <div id="photo-upload-preview" class="file-upload-preview hidden">
-                            <img id="photo-preview-img" src="" alt="Photo Preview">
-                            <span id="photo-file-name" class="file-name"></span>
-                        </div>
-                        <div id="photo-upload-progress" class="file-upload-progress hidden">
-                            <div id="photo-progress-bar" class="file-upload-progress-bar"></div>
-                        </div>
-                        <p id="photo-upload-status" class="text-sm text-gray-500 mt-1"></p>
-                    </div>
-                    <!-- Document Upload Field -->
-                    <div class="md:col-span-2">
-                        <label for="documentUpload" class="block text-sm font-medium text-gray-700">Upload Supporting Document (e.g., Marksheet, Certificate) <span class="text-red-500">*</span></label>
-                        <input type="file" id="documentUpload" accept=".pdf,.doc,.docx" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
-                        <div id="document-upload-preview" class="file-upload-preview hidden">
-                            <svg class="h-10 w-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
-                            <span id="document-file-name" class="file-name"></span>
-                        </div>
-                        <div id="document-upload-progress" class="file-upload-progress hidden">
-                            <div id="document-progress-bar" class="file-upload-progress-bar"></div>
-                        </div>
-                        <p id="document-upload-status" class="text-sm text-gray-500 mt-1"></p>
-                    </div>
-                    <!-- Academic Fields -->
-                    <div>
-                        <label for="lastPassedExam" class="block text-sm font-medium text-gray-700">Last Passed Exam <span class="text-red-500">*</span></label>
-                        <input type="text" id="lastPassedExam" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10th Grade, High School Diploma" required>
-                    </div>
-                    <div>
-                        <label for="percentageCgpa" class="block text-sm font-medium text-gray-700">Percentage / CGPA <span class="text-red-500">*</span></label>
-                        <input type="text" id="percentageCgpa" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 85% or 9.2 CGPA" required>
-                    </div>
-                </div>
-
-                <div class="mt-10 text-center">
-                    <button type="submit" id="submit-btn" class="w-full md:w-auto bg-blue-600 text-white font-semibold py-3 px-12 rounded-lg hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center mx-auto">
-                        <span id="button-text">Submit Application</span>
-                        <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </form>
         </div>
-        <div class="text-center mt-6">
-            <a href="./status.html" class="text-blue-600 hover:underline">Already applied? Check your application status here.</a>
+
+        <!-- Filter, Search and Export Section -->
+        <div class="card mb-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+            <div class="w-full md:w-1/3 control-group">
+                <label for="status-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Status:</label>
+                <select id="status-filter" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="All">All</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="w-full md:w-1/3 control-group">
+                <label for="search-input" class="text-sm font-medium text-gray-700 whitespace-nowrap">Search (App No, Name):</label>
+                <input type="text" id="search-input" placeholder="Enter application number or name..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="w-full md:w-1/3 flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                <button id="export-csv-btn" class="action-button export w-full">Export CSV</button>
+                <button id="export-pdf-btn" class="action-button pdf w-full">Export PDF</button>
+            </div>
+        </div>
+        
+        <!-- Delete Selected Button -->
+        <div class="card mb-6 p-4 text-center">
+            <button id="delete-selected-btn" class="action-button delete-selected w-full md:w-auto px-8 py-3" disabled>Delete Selected Applications</button>
+            <p class="text-sm text-gray-500 mt-2">Select applications using the checkboxes below to delete.</p>
+        </div>
+
+
+        <!-- Applications Table -->
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto">
+                    <thead class="table-header">
+                        <tr>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600 w-12">
+                                <input type="checkbox" id="select-all-checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                            </th>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Application No</th>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Name</th>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Submitted At</th>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                            <th class="p-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-table-body">
+                        <!-- Loading spinner -->
+                        <tr><td colspan="6" class="text-center p-8" id="loading-state">
+                            <div class="flex justify-center items-center"><svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="success-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden modal-backdrop">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center">
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
+    <!-- Details Modal -->
+    <div id="details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center hidden modal-backdrop">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full m-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-semibold text-gray-800">Application Details</h3>
+                <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
             </div>
-            <h3 class="text-2xl font-semibold text-gray-800">Application Submitted!</h3>
-            <p class="text-gray-600 mt-3">Your application has been received. Your Application Number is:</p>
-            <p id="application-number" class="text-2xl font-bold text-blue-600 my-4 bg-blue-50 py-2 rounded-lg"></p>
-            <p class="text-sm text-red-600 font-medium">Please save this number for future reference.</p>
-            <button id="modal-close-btn" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
+            <div id="modal-content" class="max-h-[70vh] overflow-y-auto pr-4">
+                <!-- Content will be injected by JS -->
+            </div>
+            <div class="mt-6 flex flex-col md:flex-row items-center gap-4">
+                 <select id="status-select" class="w-full md:w-1/2 block px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
+                    <option value="Submitted">Submitted</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button id="update-status-btn" class="w-full md:w-1/2 bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Message Box -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
+            <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+            <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal (for Delete Selected) -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
+        <div class="confirmation-modal-content">
+            <h3>Confirm Deletion</h3>
+            <p id="confirmation-message">Are you sure you want to delete the selected applications? This action cannot be undone.</p>
+            <div class="confirmation-modal-buttons">
+                <button id="confirm-delete-btn" class="confirm-btn">Yes, Delete</button>
+                <button id="cancel-delete-btn" class="cancel-btn">Cancel</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
             authDomain: "schooladmsn.firebaseapp.com",
@@ -159,250 +290,439 @@
             appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
             measurementId: "G-LJW1ZQTGSV"
         };
-        // --- END OF FIREBASE CONFIGURATION ---
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
+        const auth = getAuth(app);
 
-        const form = document.getElementById('admission-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const buttonText = document.getElementById('button-text');
-        const buttonSpinner = document.getElementById('button-spinner');
-        const successModal = document.getElementById('success-modal');
+        const tableBody = document.getElementById('applications-table-body');
+        const loadingState = document.getElementById('loading-state');
+        const modal = document.getElementById('details-modal');
+        const modalContent = document.getElementById('modal-content');
         const modalCloseBtn = document.getElementById('modal-close-btn');
+        const updateStatusBtn = document.getElementById('update-status-btn');
+        const statusSelect = document.getElementById('status-select');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const statusFilter = document.getElementById('status-filter');
+        const searchInput = document.getElementById('search-input');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const exportPdfBtn = document.getElementById('export-pdf-btn');
+        const customAlertModal = document.getElementById('custom-alert-modal');
+        const customAlertMessage = document.getElementById('custom-alert-message');
+        const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
+        
+        const deleteAllBtn = document.getElementById('delete-all-btn'); // This will be removed in the final HTML, but kept here for reference if you had it.
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn'); // New button
+        const selectAllCheckbox = document.getElementById('select-all-checkbox'); // New checkbox
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const confirmationMessage = document.getElementById('confirmation-message');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
 
-        // File Upload Elements
-        const photoUploadInput = document.getElementById('photoUpload');
-        const photoUploadPreview = document.getElementById('photo-upload-preview');
-        const photoPreviewImg = document.getElementById('photo-preview-img');
-        const photoFileNameSpan = document.getElementById('photo-file-name');
-        const photoUploadProgress = document.getElementById('photo-upload-progress');
-        const photoProgressBar = document.getElementById('photo-progress-bar');
-        const photoUploadStatus = document.getElementById('photo-upload-status');
 
-        const documentUploadInput = document.getElementById('documentUpload');
-        const documentUploadPreview = document.getElementById('document-upload-preview');
-        const documentFileNameSpan = document.getElementById('document-file-name');
-        const documentUploadProgress = document.getElementById('document-upload-progress');
-        const documentProgressBar = document.getElementById('document-progress-bar');
-        const documentUploadStatus = document.getElementById('document-upload-status');
+        let currentEditingDocId = null;
+        let allApplications = []; // Store all applications for filtering/searching
 
-        let uploadedPhotoUrl = null;
-        let uploadedDocumentUrl = null;
-        let photoUploadTask = null; // To keep track of the upload task
-        let documentUploadTask = null; // To keep track of the upload task
+        // --- Authentication Check ---
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // User is not logged in, redirect to login page
+                window.location.href = 'admin-login.html';
+            } else {
+                // User is logged in, fetch applications
+                fetchApplications();
+            }
+        });
 
-        // Function to handle file uploads
-        async function uploadFile(file, filePath, progressBarElement, statusElement, previewElement, fileNameSpanElement, previewImgElement = null) {
-            if (!file) return null;
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                // Redirect to login page after logout
+                window.location.href = 'admin-login.html';
+            } catch (error) {
+                console.error("Error logging out: ", error);
+                showCustomAlert("Failed to log out. Please try again.");
+            }
+        });
 
-            const storageRef = ref(storage, filePath);
-            const uploadTask = uploadBytesResumable(storageRef, file);
+        async function fetchApplications() {
+            loadingState.parentElement.classList.remove('hidden');
+            tableBody.innerHTML = ''; // Clear existing rows
+            tableBody.appendChild(loadingState.parentElement);
 
-            // Show progress bar and status
-            progressBarElement.style.width = '0%';
-            progressBarElement.parentElement.classList.remove('hidden');
-            statusElement.textContent = 'Uploading...';
-            statusElement.classList.remove('text-red-500', 'text-green-600');
-            statusElement.classList.add('text-gray-500');
+            try {
+                const q = query(collection(db, "applications"), orderBy("submittedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                loadingState.parentElement.classList.add('hidden');
+                
+                if (querySnapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">No applications found.</td></tr>';
+                    allApplications = [];
+                    return;
+                }
 
-            // Set file name in preview
-            fileNameSpanElement.textContent = file.name;
-            previewElement.classList.remove('hidden');
+                allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                applyFiltersAndSearch(); // Render all initially, applying any active filters/search
+            } catch (error) {
+                console.error("Error fetching applications: ", error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-500">Error loading data. Please try again.</td></tr>';
+                allApplications = [];
+            }
+        }
 
-            return new Promise((resolve, reject) => {
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        // Observe state change events such as progress, pause, and resume
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressBarElement.style.width = `${progress}%`;
-                        statusElement.textContent = `Upload is ${progress.toFixed(0)}% done`;
-                    }, 
-                    (error) => {
-                        // Handle unsuccessful uploads
-                        console.error("Upload failed:", error);
-                        statusElement.textContent = `Upload failed: ${error.message}`;
-                        statusElement.classList.remove('text-gray-500');
-                        statusElement.classList.add('text-red-500');
-                        progressBarElement.parentElement.classList.add('hidden');
-                        reject(error);
-                    }, 
-                    () => {
-                        // Handle successful uploads on complete
-                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                            statusElement.textContent = 'Upload complete!';
-                            statusElement.classList.remove('text-gray-500');
-                            statusElement.classList.add('text-green-600');
-                            progressBarElement.parentElement.classList.add('hidden');
-                            if (previewImgElement) {
-                                previewImgElement.src = downloadURL;
-                            }
-                            resolve(downloadURL);
-                        }).catch(error => {
-                            console.error("Error getting download URL:", error);
-                            statusElement.textContent = `Error getting URL: ${error.message}`;
-                            statusElement.classList.remove('text-gray-500');
-                            statusElement.classList.add('text-red-500');
-                            progressBarElement.parentElement.classList.add('hidden');
-                            reject(error);
-                        });
-                    }
-                );
+        function renderApplications(applicationsToRender) {
+            tableBody.innerHTML = ''; // Clear table before rendering
+            if (applicationsToRender.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">No matching applications found.</td></tr>';
+                deleteSelectedBtn.disabled = true; // Disable delete button if no applications
+                selectAllCheckbox.checked = false; // Uncheck select all
+                return;
+            }
+
+            applicationsToRender.forEach((data) => {
+                const row = document.createElement('tr');
+                row.className = 'table-row'; // Apply new class for styling
+                row.innerHTML = `
+                    <td class="p-4 text-sm">
+                        <input type="checkbox" class="application-checkbox form-checkbox h-4 w-4 text-blue-600 rounded" data-id="${data.id}">
+                    </td>
+                    <td class="p-4 text-sm">${data.applicationNo}</td>
+                    <td class="p-4 text-sm">${data.fullName}</td>
+                    <td class="p-4 text-sm">${data.submittedAt ? new Date(data.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
+                    <td class="p-4 text-sm"><span class="status-badge status-${data.status.replace(/ /g, '-')}">${data.status}</span></td>
+                    <td class="p-4 text-sm">
+                        <button class="view-btn action-button view" data-id="${data.id}">View</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            updateDeleteButtonState(); // Update delete button state after rendering
+            // Add event listeners to new "View" buttons
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', () => viewDetails(button.dataset.id));
+            });
+            // Add event listeners to new checkboxes
+            document.querySelectorAll('.application-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateDeleteButtonState);
             });
         }
 
-        // Event listener for photo upload
-        photoUploadInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                // Generate a unique file name for the photo
-                const fileName = `photo_${Date.now()}_${file.name}`;
-                const filePath = `applications/temp/${fileName}`; // Use a temp path initially, rename on form submit
+        function applyFiltersAndSearch() {
+            let filteredApplications = [...allApplications]; // Start with a copy of all applications
 
-                try {
-                    photoUploadTask = uploadFile(file, filePath, photoProgressBar, photoUploadStatus, photoUploadPreview, photoFileNameSpan, photoPreviewImg);
-                    uploadedPhotoUrl = await photoUploadTask;
-                } catch (error) {
-                    uploadedPhotoUrl = null;
-                }
-            } else {
-                uploadedPhotoUrl = null;
-                photoUploadPreview.classList.add('hidden');
-                photoUploadProgress.classList.add('hidden');
-                photoUploadStatus.textContent = '';
-            }
-        });
+            const selectedStatus = statusFilter.value;
+            const searchTerm = searchInput.value.toLowerCase().trim();
 
-        // Event listener for document upload
-        documentUploadInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                // Generate a unique file name for the document
-                const fileName = `document_${Date.now()}_${file.name}`;
-                const filePath = `applications/temp/${fileName}`; // Use a temp path initially, rename on form submit
-
-                try {
-                    documentUploadTask = uploadFile(file, filePath, documentProgressBar, documentUploadStatus, documentUploadPreview, documentFileNameSpan);
-                    uploadedDocumentUrl = await documentUploadTask;
-                } catch (error) {
-                    uploadedDocumentUrl = null;
-                }
-            } else {
-                uploadedDocumentUrl = null;
-                documentUploadPreview.classList.add('hidden');
-                documentUploadProgress.classList.add('hidden');
-                documentUploadStatus.textContent = '';
-            }
-        });
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            setLoading(true);
-
-            // Basic validation for file uploads
-            if (!uploadedPhotoUrl) {
-                showCustomAlert("Please upload your passport size photo.");
-                setLoading(false);
-                return;
-            }
-            if (!uploadedDocumentUrl) {
-                showCustomAlert("Please upload your supporting document.");
-                setLoading(false);
-                return;
+            // Filter by status
+            if (selectedStatus !== 'All') {
+                filteredApplications = filteredApplications.filter(app => app.status === selectedStatus);
             }
 
-            // Generate a unique application number
-            const applicationNo = `SCHL${Date.now()}`;
-
-            try {
-                // Get form data
-                const applicationData = {
-                    fullName: document.getElementById('fullName').value,
-                    dob: document.getElementById('dob').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
-                    lastPassedExam: document.getElementById('lastPassedExam').value,
-                    percentageCgpa: document.getElementById('percentageCgpa').value,
-                    photoUrl: uploadedPhotoUrl, // Use the uploaded photo URL
-                    documentUrl: uploadedDocumentUrl, // Use the uploaded document URL
-                    applicationNo: applicationNo,
-                    status: "Submitted", // Initial status
-                    submittedAt: serverTimestamp()
-                };
-
-                // Add a new document with a generated ID to the "applications" collection
-                await addDoc(collection(db, "applications"), applicationData);
-                
-                // Show success message
-                document.getElementById('application-number').textContent = applicationNo;
-                successModal.classList.remove('hidden');
-                successModal.classList.add('flex');
-
-                // Optionally, you might want to move the files in storage to a permanent folder
-                // based on the applicationNo, but for simplicity, we're keeping them in 'applications/temp'
-                // and relying on the unique timestamp in the filename. If you need to organize by applicationNo,
-                // you'd re-upload or use Firebase Cloud Functions to move them.
-                // For this example, the initial upload path includes 'temp' but is effectively permanent due to unique filename.
-
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                showCustomAlert("There was an error submitting your application. Please try again.");
-            } finally {
-                setLoading(false);
+            // Filter by search term (application number or full name)
+            if (searchTerm) {
+                filteredApplications = filteredApplications.filter(app =>
+                    app.applicationNo.toLowerCase().includes(searchTerm) ||
+                    app.fullName.toLowerCase().includes(searchTerm)
+                );
             }
-        });
-
-        function setLoading(isLoading) {
-            submitBtn.disabled = isLoading;
-            if (isLoading) {
-                buttonText.classList.add('hidden');
-                buttonSpinner.classList.remove('hidden');
-            } else {
-                buttonText.classList.remove('hidden');
-                buttonSpinner.classList.add('hidden');
-            }
+            renderApplications(filteredApplications);
         }
 
-        modalCloseBtn.addEventListener('click', () => {
-            successModal.classList.add('hidden');
-            successModal.classList.remove('flex');
-            form.reset();
-            // Reset file upload previews and status
-            photoUploadInput.value = '';
-            documentUploadInput.value = '';
-            uploadedPhotoUrl = null;
-            uploadedDocumentUrl = null;
-            photoUploadPreview.classList.add('hidden');
-            photoUploadProgress.classList.add('hidden');
-            photoUploadStatus.textContent = '';
-            documentUploadPreview.classList.add('hidden');
-            documentUploadProgress.classList.add('hidden');
-            documentUploadStatus.textContent = '';
+        function viewDetails(docId) {
+            currentEditingDocId = docId;
+            const data = allApplications.find(app => app.id === docId);
+            if (!data) return;
+            
+            modalContent.innerHTML = `
+                <div class="modal-content-grid">
+                    <p><strong>Name:</strong> ${data.fullName}</p>
+                    <p><strong>App No:</strong> ${data.applicationNo}</p>
+                    <p><strong>DOB:</strong> ${data.dob}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Phone:</strong> ${data.phone}</p>
+                    <p class="md:col-span-2"><strong>Address:</strong> ${data.address}</p>
+                    <p><strong>Last Exam:</strong> ${data.lastPassedExam || 'N/A'}</p>
+                    <p><strong>Percentage/CGPA:</strong> ${data.percentageCgpa || 'N/A'}</p>
+                    <div class="md:col-span-2">
+                        <strong>Photo:</strong>
+                        <img src="${data.photoUrl}" alt="Photo of ${data.fullName}" class="mt-2" onerror="this.src='https://placehold.co/150x200?text=Image+Not+Found'">
+                    </div>
+                </div>
+            `;
+            statusSelect.value = data.status;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        updateStatusBtn.addEventListener('click', async () => {
+            if (!currentEditingDocId) return;
+            const newStatus = statusSelect.value;
+            updateStatusBtn.textContent = 'Updating...';
+            updateStatusBtn.disabled = true;
+
+            try {
+                const docRef = doc(db, "applications", currentEditingDocId);
+                await updateDoc(docRef, {
+                    status: newStatus
+                });
+                closeModal();
+                // Update the status in allApplications array directly for immediate UI update
+                const updatedAppIndex = allApplications.findIndex(app => app.id === currentEditingDocId);
+                if (updatedAppIndex > -1) {
+                    allApplications[updatedAppIndex].status = newStatus;
+                }
+                // Re-render the table with the updated status by re-applying filters/search
+                applyFiltersAndSearch(); 
+                showCustomAlert("Application status updated successfully!");
+            } catch (error) {
+                console.error("Error updating status: ", error);
+                showCustomAlert("Failed to update status.");
+            } finally {
+                updateStatusBtn.textContent = 'Update Status';
+                updateStatusBtn.disabled = false;
+            }
         });
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentEditingDocId = null;
+        }
+
+        modalCloseBtn.addEventListener('click', closeModal);
+        refreshBtn.addEventListener('click', fetchApplications);
+        statusFilter.addEventListener('change', applyFiltersAndSearch);
+        searchInput.addEventListener('input', applyFiltersAndSearch);
 
         // Custom Alert/Message Box Function (replaces alert())
         function showCustomAlert(message) {
-            const existingAlert = document.getElementById('custom-alert-modal');
-            if (existingAlert) existingAlert.remove();
-
-            const alertModal = document.createElement('div');
-            alertModal.id = 'custom-alert-modal';
-            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
-            alertModal.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-                    <p class="text-gray-600 mb-6">${message}</p>
-                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-                </div>
-            `;
-            document.body.appendChild(alertModal);
-
-            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
-                alertModal.remove();
-            });
+            customAlertMessage.textContent = message;
+            customAlertModal.classList.remove('hidden');
+            customAlertModal.classList.add('flex');
         }
+
+        customAlertOkBtn.addEventListener('click', () => {
+            customAlertModal.classList.add('hidden');
+            customAlertModal.classList.remove('flex');
+        });
+
+        // --- Select and Delete Functionality ---
+
+        selectAllCheckbox.addEventListener('change', () => {
+            const checkboxes = document.querySelectorAll('.application-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateDeleteButtonState();
+        });
+
+        function updateDeleteButtonState() {
+            const checkboxes = document.querySelectorAll('.application-checkbox');
+            const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            deleteSelectedBtn.disabled = !anyChecked;
+
+            // Update select all checkbox state
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            if (checkboxes.length > 0) { // Only update if there are applications
+                selectAllCheckbox.checked = allChecked;
+            } else {
+                selectAllCheckbox.checked = false;
+            }
+        }
+
+        deleteSelectedBtn.addEventListener('click', () => {
+            const selectedIds = Array.from(document.querySelectorAll('.application-checkbox:checked'))
+                                 .map(checkbox => checkbox.dataset.id);
+            
+            if (selectedIds.length === 0) {
+                showCustomAlert("Please select at least one application to delete.");
+                return;
+            }
+
+            confirmationMessage.textContent = `Are you sure you want to delete ${selectedIds.length} selected application(s)? This action cannot be undone.`;
+            confirmationModal.classList.remove('hidden');
+            confirmationModal.classList.add('flex');
+
+            // Store selected IDs temporarily for confirmation
+            confirmationModal.dataset.selectedIds = JSON.stringify(selectedIds);
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            confirmationModal.classList.add('hidden');
+            confirmationModal.classList.remove('flex');
+            confirmationModal.removeAttribute('data-selected-ids'); // Clear stored IDs
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            confirmationModal.classList.add('hidden');
+            confirmationModal.classList.remove('flex');
+            
+            const selectedIds = JSON.parse(confirmationModal.dataset.selectedIds || '[]');
+            if (selectedIds.length === 0) {
+                showCustomAlert("No applications selected for deletion.");
+                return;
+            }
+
+            showCustomAlert(`Deleting ${selectedIds.length} application(s)...`);
+            deleteSelectedBtn.disabled = true; // Disable button during deletion
+
+            try {
+                const deletePromises = [];
+                for (const id of selectedIds) {
+                    deletePromises.push(deleteDoc(doc(db, "applications", id)));
+                }
+
+                await Promise.all(deletePromises); // Wait for all delete operations to complete
+                showCustomAlert("Selected applications deleted successfully!");
+                
+                // Remove deleted items from allApplications array
+                allApplications = allApplications.filter(app => !selectedIds.includes(app.id));
+                
+                applyFiltersAndSearch(); // Refresh the table after deletion
+                selectAllCheckbox.checked = false; // Uncheck select all
+            } catch (error) {
+                console.error("Error deleting selected applications: ", error);
+                showCustomAlert("Failed to delete selected applications. Check console for details.");
+            } finally {
+                deleteSelectedBtn.disabled = false; // Re-enable button
+                confirmationModal.removeAttribute('data-selected-ids'); // Clear stored IDs
+            }
+        });
+
+
+        // --- Export Functions ---
+
+        // Function to convert data to CSV format
+        function convertToCsv(dataArray) {
+            if (dataArray.length === 0) return '';
+
+            // Define headers (order them as desired)
+            const headers = [
+                "Application No", "Full Name", "Date of Birth", "Email", "Phone",
+                "Address", "Photo URL", "Last Passed Exam", "Percentage/CGPA", "Submitted At", "Status"
+            ];
+            
+            // Map data to header order
+            const rows = dataArray.map(item => [
+                item.applicationNo,
+                item.fullName,
+                item.dob,
+                item.email,
+                item.phone,
+                `"${item.address.replace(/"/g, '""')}"`, // Handle commas/quotes in address
+                item.photoUrl,
+                item.lastPassedExam,
+                item.percentageCgpa,
+                item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A',
+                item.status
+            ]);
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(field => {
+                    // Ensure fields with commas or quotes are properly escaped
+                    if (typeof field === 'string' && (field.includes(',') || field.includes('"') || field.includes('\n'))) {
+                        return `"${field.replace(/"/g, '""')}"`;
+                    }
+                    return field;
+                }).join(',') + '\n';
+            });
+            return csvContent;
+        }
+
+        // Function to download CSV
+        exportCsvBtn.addEventListener('click', () => {
+            const dataToExport = allApplications; // Export all data, or use filteredApplications if you want to export only currently displayed
+            if (dataToExport.length === 0) {
+                showCustomAlert("No data to export.");
+                return;
+            }
+            const csv = convertToCsv(dataToExport);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection for download attribute
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'admission_applications.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showCustomAlert("Your browser does not support downloading CSV directly. Please copy the data manually.");
+            }
+        });
+
+        // Function to export to PDF (using html2pdf.js)
+        exportPdfBtn.addEventListener('click', () => {
+            const dataToExport = allApplications; // Export all, or filteredApplications
+            if (dataToExport.length === 0) {
+                showCustomAlert("No data to export.");
+                return;
+            }
+
+            // Create a temporary div to render the table for PDF
+            const tempDiv = document.createElement('div');
+            tempDiv.style.padding = '20px';
+            tempDiv.style.fontFamily = 'Inter, sans-serif';
+
+            let tableHtml = `
+                <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; color: #1f2937;">Admission Applications Report</h1>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f8fafc; border-bottom: 2px solid #edf2f7;">
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">App No</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Name</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">DOB</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Email</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Phone</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Last Exam</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Percentage/CGPA</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Submitted At</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            dataToExport.forEach(item => {
+                tableHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.applicationNo}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.fullName}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.email}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.status}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            tempDiv.innerHTML = tableHtml;
+            document.body.appendChild(tempDiv); // Temporarily add to DOM for html2pdf
+
+            const opt = {
+                margin: 0.5,
+                filename: 'admission_applications.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } // Landscape for wider tables
+            };
+
+            html2pdf().from(tempDiv).set(opt).save().then(() => {
+                tempDiv.remove(); // Remove temporary div after PDF generation
+            });
+        });
+
     </script>
 </body>
 </html>
