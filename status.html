@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status & Admit Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-container { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 600; }
+        .status-Submitted { background-color: #e0e7ff; color: #4338ca; }
+        .status-Under-Review { background-color: #fef3c7; color: #b45309; }
+        .status-Accepted { background-color: #d1fae5; color: #065f46; }
+        .status-Rejected { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto px-4 py-12">
+        <!-- Status Check Section -->
+        <div id="status-check-section" class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Check Application Status</h1>
+                <p class="text-gray-500 mt-2">Enter your details to view your application status.</p>
+            </div>
+            <form id="status-form">
+                <div class="space-y-6">
+                    <div>
+                        <label for="applicationNo" class="block text-sm font-medium text-gray-700">Application Number</label>
+                        <input type="text" id="applicationNo" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                        <input type="date" id="dob" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <button type="submit" id="check-status-btn" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700">Check Status</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Status Display Section -->
+        <div id="status-display-section" class="hidden max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-800">Your Application Status</h2>
+            <div class="my-6">
+                <p class="text-lg text-gray-600">Hello, <span id="status-name" class="font-bold"></span>!</p>
+                <p class="mt-2 text-lg text-gray-600">Your application status is:</p>
+                <div class="mt-2 inline-block"><span id="status-badge" class="text-lg status-badge"></span></div>
+            </div>
+            <div id="status-message" class="p-4 bg-gray-100 rounded-lg text-gray-700"></div>
+            <button id="download-admit-card-btn" class="hidden mt-6 w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700">Download Admit Card</button>
+            <button id="back-to-check-btn" class="mt-4 w-full bg-gray-600 text-white font-semibold py-3 rounded-lg hover:bg-gray-700">Check Another Application</button>
+        </div>
+
+        <!-- Admit Card Display -->
+        <div id="admit-card-display" class="hidden max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8">
+             <div id="admit-card-content">
+                <div class="text-center border-b pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Entrance Test - Admit Card</h2>
+                    <p class="text-lg font-semibold text-blue-600">E-Admit Card</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2 space-y-4 text-gray-700">
+                        <p><strong>Roll Number:</strong> <span id="card-roll-no"></span></p>
+                        <p><strong>Candidate Name:</strong> <span id="card-name"></span></p>
+                        <p><strong>Date of Birth:</strong> <span id="card-dob"></span></p>
+                        <p><strong>Application Number:</strong> <span id="card-app-no"></span></p>
+                        <p><strong>Exam Date:</strong> September 15, 2025</p>
+                        <p><strong>Exam Time:</strong> 10:00 AM - 12:00 PM</p>
+                        <p><strong>Exam Center:</strong> School Main Campus, Auditorium A</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <img id="card-photo" src="https://placehold.co/150x200" alt="Candidate Photo" class="w-36 h-48 object-cover border-2 border-gray-300 rounded-lg">
+                    </div>
+                </div>
+             </div>
+            <div class="mt-8 text-center">
+                <button id="pdf-download-btn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download as PDF</button>
+                <button id="back-to-status-btn" class="ml-4 bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-gray-700">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // --- END OF FIREBASE CONFIGURATION ---
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Sections
+        const statusCheckSection = document.getElementById('status-check-section');
+        const statusDisplaySection = document.getElementById('status-display-section');
+        const admitCardDisplay = document.getElementById('admit-card-display');
+
+        // Forms and Buttons
+        const statusForm = document.getElementById('status-form');
+        const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
+        const backToCheckBtn = document.getElementById('back-to-check-btn');
+        const pdfDownloadBtn = document.getElementById('pdf-download-btn');
+        const backToStatusBtn = document.getElementById('back-to-status-btn');
+
+        let currentApplicationData = null;
+
+        statusForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const appNo = document.getElementById('applicationNo').value;
+            const dob = document.getElementById('dob').value;
+
+            const q = query(collection(db, "applications"), where("applicationNo", "==", appNo), where("dob", "==", dob));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                alert("Invalid details. Please check your Application Number and Date of Birth.");
+                return;
+            }
+
+            currentApplicationData = querySnapshot.docs[0].data();
+            displayStatus(currentApplicationData);
+        });
+
+        function displayStatus(data) {
+            document.getElementById('status-name').textContent = data.fullName;
+            const statusBadge = document.getElementById('status-badge');
+            statusBadge.textContent = data.status;
+            statusBadge.className = `text-lg status-badge status-${data.status.replace(' ', '-')}`;
+            
+            const statusMessage = document.getElementById('status-message');
+            downloadAdmitCardBtn.classList.add('hidden');
+
+            switch(data.status) {
+                case 'Submitted':
+                    statusMessage.textContent = 'Your application has been submitted and is awaiting review.';
+                    break;
+                case 'Under Review':
+                    statusMessage.textContent = 'Your application is currently being reviewed by the admission committee.';
+                    break;
+                case 'Accepted':
+                    statusMessage.textContent = 'Congratulations! Your application has been accepted for the entrance test.';
+                    downloadAdmitCardBtn.classList.remove('hidden');
+                    break;
+                case 'Rejected':
+                    statusMessage.textContent = 'We regret to inform you that your application was not successful at this time.';
+                    break;
+            }
+            statusCheckSection.classList.add('hidden');
+            statusDisplaySection.classList.remove('hidden');
+        }
+
+        downloadAdmitCardBtn.addEventListener('click', () => {
+            populateAdmitCard(currentApplicationData);
+            statusDisplaySection.classList.add('hidden');
+            admitCardDisplay.classList.remove('hidden');
+        });
+
+        function populateAdmitCard(data) {
+            document.getElementById('card-roll-no').textContent = `ROLL${data.applicationNo.slice(-6)}`;
+            document.getElementById('card-name').textContent = data.fullName;
+            document.getElementById('card-dob').textContent = new Date(data.dob + 'T00:00:00').toLocaleDateString('en-GB');
+            document.getElementById('card-app-no').textContent = data.applicationNo;
+            const photoEl = document.getElementById('card-photo');
+            photoEl.src = data.photoUrl;
+            photoEl.onerror = () => { photoEl.src = 'https://placehold.co/150x200?text=Photo'; };
+        }
+        
+        pdfDownloadBtn.addEventListener('click', () => {
+            const admitCardContent = document.getElementById('admit-card-content');
+            const opt = {
+                margin: 0.5,
+                filename: `Admit_Card_${currentApplicationData.applicationNo}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(admitCardContent).set(opt).save();
+        });
+
+        backToCheckBtn.addEventListener('click', () => {
+            statusDisplaySection.classList.add('hidden');
+            statusCheckSection.classList.remove('hidden');
+            statusForm.reset();
+        });
+
+        backToStatusBtn.addEventListener('click', () => {
+            admitCardDisplay.classList.add('hidden');
+            statusDisplaySection.classList.remove('hidden');
+        });
+
+    </script>
+</body>
+</html>
