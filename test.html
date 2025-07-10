@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +23,8 @@
         .hero-section {
             /* Updated background with a more professional placeholder image */
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://placehold.co/1920x1080/2d3748/ffffff?text=Modern+School+Campus') center/cover no-repeat;
+            background-size: cover;
+            background-position: center;
             color: white;
             padding: 8rem 0;
             text-align: center;
@@ -304,6 +308,31 @@
                 margin-top: 1rem;
             }
         }
+
+        /* Key Statistics Section */
+        .stats-section {
+            background-color: #4c51bf; /* Indigo */
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .stat-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -361,6 +390,28 @@
             </div>
         </section>
 
+        <!-- Key Statistics Section (NEW) -->
+        <section class="stats-section">
+            <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="stat-item">
+                    <div class="stat-number">2000+</div>
+                    <div class="stat-text">Students Enrolled</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-text">Graduation Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-text">Clubs & Activities</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-text">Experienced Faculty</div>
+                </div>
+            </div>
+        </section>
+
         <!-- About Us Section -->
         <section id="about" class="py-16 md:py-24 bg-gray-100">
             <div class="container mx-auto px-4">
@@ -382,7 +433,7 @@
             </div>
         </section>
 
-        <!-- Why Choose Us Section (NEW) -->
+        <!-- Why Choose Us Section -->
         <section id="why-choose-us" class="py-16 md:py-24 bg-white">
             <div class="container mx-auto px-4">
                 <h2 class="section-heading">Why Choose ABC International School?</h2>
@@ -455,21 +506,60 @@
                 <p class="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
                     Welcome to the ABC International School admissions page. We are excited to guide you through the process of joining our vibrant learning community.
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="card">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Apply Online</h3>
-                        <p class="text-gray-600 mb-6">Start your child's journey with us by filling out our comprehensive online application form.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                    <div class="card flex flex-col justify-between items-center p-6">
+                        <i class="fas fa-file-alt text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Apply Online</h3>
+                        <p class="text-gray-600 text-sm mb-6 flex-grow">Start your child's journey with us by filling out our comprehensive online application form.</p>
                         <a href="index.html" class="btn-primary w-full">Start Application</a>
                     </div>
-                    <div class="card">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Check Application Status</h3>
-                        <p class="text-gray-600 mb-6">Already applied? Track the status of your admission application using your unique application number.</p>
+                    <div class="card flex flex-col justify-between items-center p-6">
+                        <i class="fas fa-search text-5xl text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Check Status</h3>
+                        <p class="text-gray-600 text-sm mb-6 flex-grow">Already applied? Track the status of your admission application using your unique application number.</p>
                         <a href="status.html" class="btn-secondary w-full">Check Status</a>
                     </div>
+                    <div class="card flex flex-col justify-between items-center p-6">
+                        <i class="fas fa-vr-cardboard text-5xl text-purple-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Virtual Tour</h3>
+                        <p class="text-gray-600 text-sm mb-6 flex-grow">Explore our campus from anywhere with our immersive virtual tour experience.</p>
+                        <a href="#" class="btn-primary w-full">Take a Tour</a>
+                    </div>
+                    <div class="card flex flex-col justify-between items-center p-6">
+                        <i class="fas fa-question-circle text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Admissions FAQ</h3>
+                        <p class="text-gray-600 text-sm mb-6 flex-grow">Find answers to common questions about our admission process, criteria, and more.</p>
+                        <a href="#" class="btn-secondary w-full">Read FAQs</a>
+                    </div>
                 </div>
-                <p class="text-gray-600 mt-8">
-                    For detailed admission criteria, important dates, and required documents, please visit our <a href="#" class="text-blue-600 hover:underline">Admissions Policy</a> page.
-                </p>
+
+                <!-- Admissions Process Steps (NEW) -->
+                <div class="mt-16">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-8">Our Admission Process</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-1 text-blue-600 text-3xl"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Inquire & Apply</h4>
+                            <p class="text-gray-600">Submit your online application form and required documents.</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-2 text-green-600 text-3xl"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Assessment & Interview</h4>
+                            <p class="text-gray-600">Students undergo an assessment, followed by an interview with the admissions team.</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-3 text-purple-600 text-3xl"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Admission Decision & Enrollment</h4>
+                            <p class="text-gray-600">Receive your admission decision and complete the enrollment formalities.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
