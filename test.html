@@ -3,381 +3,976 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Status & Admit Card</title>
+    <title>ABC International School - Excellence in Education</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .card-container { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 600; }
-        .status-Submitted { background-color: #e0e7ff; color: #4338ca; }
-        .status-Under-Review { background-color: #fef3c7; color: #b45309; }
-        .status-Accepted { background-color: #d1fae5; color: #065f46; }
-        .status-Rejected { background-color: #fee2e2; color: #991b1b; }
-
-        /* Admit Card Specific Styles for better PDF output */
-        #admit-card-content {
-            border: 2px solid #e2e8f0; /* Light border around the card */
-            padding: 2rem;
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* Rounded corners */
-            position: relative;
-            overflow: hidden; /* Ensures background elements don't spill */
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
-        #admit-card-content::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: -50px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #bfdbfe 0%, transparent 70%); /* Subtle top-left gradient */
-            opacity: 0.3;
-            z-index: 0;
+        .header-bg {
+            background-color: #1a202c; /* Dark blue-gray */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        #admit-card-content::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            right: -50px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #d1fae5 0%, transparent 70%); /* Subtle bottom-right gradient */
-            opacity: 0.3;
-            z-index: 0;
-        }
-        .admit-card-header {
-            background-color: #1e3a8a; /* Dark blue header */
+        .hero-section {
+            /* Updated background with a more professional placeholder image */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://placehold.co/1920x1080/2d3748/ffffff?text=Modern+School+Campus') center/cover no-repeat;
             color: white;
-            padding: 1.5rem;
+            padding: 8rem 0;
             text-align: center;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
+        }
+        .section-heading {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 2.5rem;
+            text-align: center;
             position: relative;
-            z-index: 1; /* Ensure header is above pseudo-elements */
         }
-        .admit-card-header h2 {
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
+        .section-heading::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: #4c51bf; /* Indigo */
+            margin: 1rem auto 0;
+            border-radius: 2px;
         }
-        .admit-card-header p {
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 600; /* font-semibold */
-            color: #bfdbfe; /* Light blue for subtitle */
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .admit-card-section-title {
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 600; /* font-semibold */
-            color: #1f2937; /* Gray-800 */
-            border-bottom: 2px solid #e5e7eb; /* Light gray border */
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        .admit-card-info p {
+        .btn-primary {
+            background-color: #4c51bf; /* Indigo */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #6b46c1; /* Darker Indigo/Purple */
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #edf2f7; /* Light gray */
+            color: #4a5568; /* Dark gray */
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0; /* Even lighter gray */
+            transform: translateY(-2px);
+        }
+        .footer-bg {
+            background-color: #1a202c; /* Dark blue-gray */
+            color: #cbd5e0; /* Light gray */
+        }
+        .footer-link {
+            color: #cbd5e0;
+            transition: color 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #a0aec0; /* Lighter gray on hover */
+        }
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            background-color: #1a202c;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+        .mobile-menu a:hover {
+            background-color: #2d3748;
+        }
+
+        /* Notice Board Specific Styles */
+        .notice-item {
             display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
             justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed #e5e7eb; /* Dashed line for separation */
+            align-items: center;
+            padding: 1rem; /* Increased padding */
+            border-bottom: 1px solid #e2e8f0; /* Light gray border */
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            border-radius: 0.5rem; /* Rounded corners for items */
+            margin-bottom: 0.5rem; /* Space between items */
         }
-        .admit-card-info p:last-child {
+        .notice-item:last-child {
             border-bottom: none;
         }
-        .admit-card-info strong {
-            color: #4b5563; /* Gray-700 */
+        .notice-item:hover {
+            background-color: #f7fafc; /* Very light gray on hover */
+            transform: translateY(-2px); /* Subtle lift on hover */
         }
-        .admit-card-photo {
-            border: 3px solid #60a5fa; /* Blue border for photo */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        .notice-item-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
-        .admit-card-instructions {
-            background-color: #f9fafb; /* Light background for instructions */
-            border: 1px solid #e5e7eb;
-            border-left: 4px solid #3b82f6; /* Blue left border */
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-        .admit-card-instructions h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1e40af; /* Darker blue for instruction title */
-            margin-bottom: 0.75rem;
-        }
-        .admit-card-instructions ul {
-            list-style-type: disc;
-            margin-left: 1.5rem;
-            color: #4b5563;
-        }
-        .admit-card-instructions li {
+        .notice-item-header {
+            display: flex;
+            align-items: center;
             margin-bottom: 0.5rem;
+        }
+        .notice-icon {
+            color: #4c51bf; /* Indigo */
+            font-size: 1.25rem; /* text-xl */
+            margin-right: 0.75rem;
+        }
+        .notice-item-title {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* semibold */
+            color: #2d3748; /* dark gray */
+        }
+        .notice-item-meta {
+            font-size: 0.875rem; /* text-sm */
+            color: #718096; /* gray */
+            display: flex;
+            align-items: center;
+            margin-top: 0.25rem;
+        }
+        .notice-item-meta i {
+            margin-right: 0.4rem;
+        }
+        .notice-item-link {
+            display: flex;
+            align-items: center;
+            color: #4c51bf; /* Indigo */
+            margin-left: 1rem;
+            transition: color 0.2s ease;
+            font-weight: 500;
+        }
+        .notice-item-link:hover {
+            color: #6b46c1; /* Darker Indigo/Purple */
+        }
+        .notice-item-link svg {
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
+            margin-left: 0.5rem;
+        }
+        .new-badge {
+            background-color: #ef4444; /* Red */
+            color: white;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem; /* rounded-md */
+            margin-left: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Testimonial Card Specific Styles */
+        .testimonial-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            text-align: center;
+        }
+        .testimonial-card img {
+            width: 96px; /* 24 * 4 */
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 4px solid #4c51bf;
+        }
+        .testimonial-card p {
+            font-style: italic;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+        .testimonial-card .author {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .testimonial-card .role {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        /* Why Choose Us Icons */
+        .why-choose-icon {
+            color: #4c51bf; /* Indigo */
+            font-size: 3.5rem; /* Larger icon size */
+            margin-bottom: 1rem;
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .gallery-item img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments for notice items */
+        @media (max-width: 768px) {
+            .notice-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .notice-item-link {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="antialiased">
 
-    <div class="container mx-auto px-4 py-12">
-        <!-- Status Check Section -->
-        <div id="status-check-section" class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">Check Application Status</h1>
-                <p class="text-gray-500 mt-2">Enter your details to view your application status.</p>
+    <!-- Header -->
+    <header class="header-bg sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center relative">
+            <a href="#" class="text-2xl font-extrabold text-white">ABC International School</a>
+            
+            <!-- Desktop Navigation -->
+            <ul class="hidden md:flex space-x-8">
+                <li><a href="#hero" class="text-white hover:text-blue-300 transition-colors duration-200">Home</a></li>
+                <li><a href="#about" class="text-white hover:text-blue-300 transition-colors duration-200">About Us</a></li>
+                <li><a href="#academics" class="text-white hover:text-blue-300 transition-colors duration-200">Academics</a></li>
+                <li><a href="#admissions" class="text-white hover:text-blue-300 transition-colors duration-200">Admissions</a></li>
+                <li><a href="#campus" class="text-white hover:text-blue-300 transition-colors duration-200">Campus Life</a></li>
+                <li><a href="#news" class="text-white hover:text-blue-300 transition-colors duration-200">News & Events</a></li>
+                <li><a href="#notices" class="text-white hover:text-blue-300 transition-colors duration-200">Notice Board</a></li>
+                <li><a href="#contact" class="text-white hover:text-blue-300 transition-colors duration-200">Contact</a></li>
+            </ul>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="mobile-menu md:hidden">
+                <ul class="py-2">
+                    <li><a href="#hero" class="block py-2 px-4 text-white hover:bg-gray-700">Home</a></li>
+                    <li><a href="#about" class="block py-2 px-4 text-white hover:bg-gray-700">About Us</a></li>
+                    <li><a href="#academics" class="block py-2 px-4 text-white hover:bg-gray-700">Academics</a></li>
+                    <li><a href="#admissions" class="block py-2 px-4 text-white hover:bg-gray-700">Admissions</a></li>
+                    <li><a href="#campus" class="block py-2 px-4 text-white hover:bg-gray-700">Campus Life</a></li>
+                    <li><a href="#news" class="block py-2 px-4 text-white hover:bg-gray-700">News & Events</a></li>
+                    <li><a href="#notices" class="block py-2 px-4 text-white hover:bg-gray-700">Notice Board</a></li>
+                    <li><a href="#contact" class="block py-2 px-4 text-white hover:bg-gray-700">Contact</a></li>
+                </ul>
             </div>
-            <form id="status-form">
-                <div class="space-y-6">
-                    <div>
-                        <label for="applicationNo" class="block text-sm font-medium text-gray-700">Application Number</label>
-                        <input type="text" id="applicationNo" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
-                    </div>
-                    <div>
-                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                        <input type="date" id="dob" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg" required>
-                    </div>
-                </div>
-                <div class="mt-8">
-                    <button type="submit" id="check-status-btn" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Check Status</button>
-                </div>
-            </form>
-        </div>
+        </nav>
+    </header>
 
-        <!-- Status Display Section -->
-        <div id="status-display-section" class="hidden max-w-xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8 text-center">
-            <h2 class="text-2xl font-bold text-gray-800">Your Application Status</h2>
-            <div class="my-6">
-                <p class="text-lg text-gray-600">Hello, <span id="status-name" class="font-bold"></span>!</p>
-                <p class="mt-2 text-lg text-gray-600">Your application status is:</p>
-                <div class="mt-2 inline-block"><span id="status-badge" class="text-lg status-badge"></span></div>
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-4">Shaping Future Leaders Through Holistic Education</h1>
+                <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">Providing a nurturing environment where every child can thrive academically, socially, and personally.</p>
+                <div class="space-x-4">
+                    <a href="#admissions" class="btn-primary inline-block">Apply Now</a>
+                    <a href="#about" class="btn-secondary inline-block">Learn More</a>
+                </div>
             </div>
-            <div id="status-message" class="p-4 bg-gray-100 rounded-lg text-gray-700"></div>
-            <button id="download-admit-card-btn" class="hidden mt-6 w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Download Admit Card</button>
-            <button id="back-to-check-btn" class="mt-4 w-full bg-gray-600 text-white font-semibold py-3 rounded-lg hover:bg-gray-700 transition-colors">Check Another Application</button>
-        </div>
+        </section>
 
-        <!-- Admit Card Display -->
-        <div id="admit-card-display" class="hidden max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl card-container mt-8">
-             <div id="admit-card-content">
-                <div class="admit-card-header">
-                    <h2>MZR ACADEMY</h2>
-                    <p>Entrance Test - Admit Card</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-                    <div class="md:col-span-2 space-y-4 text-gray-700 admit-card-info">
-                        <h3 class="admit-card-section-title">Candidate Details</h3>
-                        <p><strong>Roll Number:</strong> <span id="card-roll-no"></span></p>
-                        <p><strong>Candidate Name:</strong> <span id="card-name"></span></p>
-                        <p><strong>Date of Birth:</strong> <span id="card-dob"></span></p>
-                        <p><strong>Application Number:</strong> <span id="card-app-no"></span></p>
+        <!-- About Us Section -->
+        <section id="about" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">About ABC International School</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <p class="text-lg text-gray-700 mb-6">
+                            ABC International School is dedicated to fostering intellectual curiosity, critical thinking, and a lifelong love for learning. Established in <strong>[Year]</strong>, we have been a beacon of educational excellence, committed to developing well-rounded individuals prepared for global challenges.
+                        </p>
+                        <p class="text-gray-600 mb-6">
+                            Our philosophy centers on a balanced approach to education, combining rigorous academics with rich extracurricular activities. We believe in nurturing each student's unique talents and providing them with the tools to succeed in an ever-evolving world.
+                        </p>
+                        <a href="#" class="btn-primary">Our Mission & Vision</a>
                     </div>
-                    <div class="flex flex-col items-center relative z-10">
-                        <img id="card-photo" src="https://placehold.co/150x200" alt="Candidate Photo" class="w-36 h-48 object-cover rounded-lg admit-card-photo">
-                        <p class="text-sm text-gray-500 mt-2">Candidate Photo</p>
+                    <div>
+                        <img src="https://placehold.co/600x400/a0aec0/ffffff?text=About+Us+Image" alt="Students in a classroom" class="rounded-lg shadow-lg w-full h-auto object-cover">
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="mt-8 relative z-10">
-                    <h3 class="admit-card-section-title">Examination Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 admit-card-info">
-                        <p><strong>Exam Date:</strong> <span>September 15, 2025</span></p>
-                        <p><strong>Exam Time:</strong> <span>10:00 AM - 12:00 PM</span></p>
-                        <p class="md:col-span-2"><strong>Exam Center:</strong> <span>ABC School Main Campus, Auditorium A, 123 School Road, City, State, 12345</span></p>
+        <!-- Why Choose Us Section (NEW) -->
+        <section id="why-choose-us" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Why Choose ABC International School?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="card">
+                        <i class="fas fa-chalkboard-teacher why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Experienced Faculty</h3>
+                        <p class="text-gray-600">Our passionate and highly qualified educators are dedicated to student success.</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-globe why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Global Curriculum</h3>
+                        <p class="text-gray-600">An internationally recognized curriculum prepares students for a globalized world.</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-handshake why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Holistic Development</h3>
+                        <p class="text-gray-600">Focus on academic, social, emotional, and physical growth for well-rounded individuals.</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-flask why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Modern Facilities</h3>
+                        <p class="text-gray-600">State-of-the-art labs, libraries, and sports amenities for an optimal learning environment.</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-users why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Vibrant Community</h3>
+                        <p class="text-gray-600">A diverse and inclusive community that fosters collaboration and mutual respect.</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-chart-line why-choose-icon"></i>
+                        <h3 class="text-xl font-semibold mb-3">Proven Track Record</h3>
+                        <p class="text-gray-600">Consistent academic excellence and successful alumni in various fields.</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="admit-card-instructions mt-8">
-                    <h3>Important Instructions:</h3>
-                    <ul>
-                        <li>Candidates must carry this admit card and a valid photo ID to the examination center.</li>
-                        <li>Report to the examination center at least 30 minutes before the exam time.</li>
-                        <li>No electronic gadgets or study materials are allowed inside the examination hall.</li>
-                        <li>Follow all instructions announced by the invigilator.</li>
-                        <li>Any form of malpractice will lead to immediate disqualification.</li>
+        <!-- Academics Section -->
+        <section id="academics" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Our Academic Programs</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card text-center">
+                        <i class="fas fa-child text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-3">Primary School (Grades 1-5)</h3>
+                        <p class="text-gray-600">Building strong foundational skills in literacy, numeracy, and critical thinking through interactive and engaging methods.</p>
+                    </div>
+                    <div class="card text-center">
+                        <i class="fas fa-user-graduate text-5xl text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-3">Middle School (Grades 6-8)</h3>
+                        <p class="text-gray-600">Encouraging exploration and deeper understanding across various subjects, fostering independent learning.</p>
+                    </div>
+                    <div class="card text-center">
+                        <i class="fas fa-university text-5xl text-purple-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-3">High School (Grades 9-12)</h3>
+                        <p class="text-gray-600">Preparing students for higher education with challenging curricula, specialized courses, and career guidance.</p>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="#" class="btn-primary">View Curriculum Details</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admissions Section -->
+        <section id="admissions" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="section-heading">Admissions</h2>
+                <p class="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+                    Welcome to the ABC International School admissions page. We are excited to guide you through the process of joining our vibrant learning community.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="card">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Apply Online</h3>
+                        <p class="text-gray-600 mb-6">Start your child's journey with us by filling out our comprehensive online application form.</p>
+                        <a href="index.html" class="btn-primary w-full">Start Application</a>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Check Application Status</h3>
+                        <p class="text-gray-600 mb-6">Already applied? Track the status of your admission application using your unique application number.</p>
+                        <a href="status.html" class="btn-secondary w-full">Check Status</a>
+                    </div>
+                </div>
+                <p class="text-gray-600 mt-8">
+                    For detailed admission criteria, important dates, and required documents, please visit our <a href="#" class="text-blue-600 hover:underline">Admissions Policy</a> page.
+                </p>
+            </div>
+        </section>
+
+        <!-- Campus Life Section -->
+        <section id="campus" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Campus Life & Facilities</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card text-center">
+                        <img src="https://placehold.co/400x250/d1fae5/065f46?text=Modern+Classrooms" alt="Modern Classrooms" class="rounded-lg mb-4 w-full h-40 object-cover">
+                        <h3 class="text-xl font-semibold mb-3">Modern Classrooms</h3>
+                        <p class="text-gray-600">Equipped with interactive whiteboards and comfortable learning spaces.</p>
+                    </div>
+                    <div class="card text-center">
+                        <img src="https://placehold.co/400x250/e0e7ff/4338ca?text=Sports+Complex" alt="Sports Complex" class="rounded-lg mb-4 w-full h-40 object-cover">
+                        <h3 class="text-xl font-semibold mb-3">State-of-the-Art Sports Complex</h3>
+                        <p class="text-gray-600">Facilities for various indoor and outdoor sports, promoting physical fitness.</p>
+                    </div>
+                    <div class="card text-center">
+                        <img src="https://placehold.co/400x250/fef3c7/b45309?text=Library" alt="Library" class="rounded-lg mb-4 w-full h-40 object-cover">
+                        <h3 class="text-xl font-semibold mb-3">Extensive Library</h3>
+                        <p class="text-gray-600">A vast collection of books and digital resources to support research and reading.</p>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="#" class="btn-primary">Explore Our Campus</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Our Campus in Pictures</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/bbf7d0/16a34a?text=Classroom+View" alt="Classroom View">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/dbeafe/2563eb?text=Library+Interior" alt="Library Interior">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/fecdd3/ef4444?text=Sports+Field" alt="Sports Field">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/e9d5ff/a855f7?text=Science+Lab" alt="Science Lab">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/ffe4e6/be123c?text=Art+Studio" alt="Art Studio">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/400x250/dcfce7/22c55e?text=Playground" alt="Playground">
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="#" class="btn-primary">View Full Gallery</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- News & Events Section -->
+        <section id="news" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Latest News & Events</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card">
+                        <img src="https://placehold.co/400x220/c7d2fe/4338ca?text=Event+1" alt="Annual Science Fair" class="rounded-lg mb-4 w-full h-auto object-cover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Annual Science Fair 2025</h3>
+                        <p class="text-sm text-gray-500 mb-3">July 10, 2025</p>
+                        <p class="text-gray-600 mb-4">Our students showcased incredible innovation at this year's science fair, presenting groundbreaking projects.</p>
+                        <a href="#" class="text-blue-600 hover:underline text-sm">Read More</a>
+                    </div>
+                    <div class="card">
+                        <img src="https://placehold.co/400x220/bfdbfe/3b82f6?text=Event+2" alt="Sports Day" class="rounded-lg mb-4 w-full h-auto object-cover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sports Day Highlights</h3>
+                        <p class="text-sm text-gray-500 mb-3">June 28, 2025</p>
+                        <p class="text-gray-600 mb-4">A day filled with competitive spirit, teamwork, and outstanding athletic performances by our students.</p>
+                        <a href="#" class="text-blue-600 hover:underline text-sm">Read More</a>
+                    </div>
+                    <div class="card">
+                        <img src="https://placehold.co/400x220/dbeafe/60a5fa?text=Event+3" alt="Debate Championship" class="rounded-lg mb-4 w-full h-auto object-cover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Inter-School Debate Championship</h3>
+                        <p class="text-sm text-gray-500 mb-3">June 15, 2025</p>
+                        <p class="text-gray-600 mb-4">Our debate team secured the championship trophy, demonstrating exceptional oratorical skills.</p>
+                        <a href="#" class="text-blue-600 hover:underline text-sm">Read More</a>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="#" class="btn-primary">View All News & Events</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">What Our Community Says</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/4c51bf/ffffff?text=P1" alt="Parent 1">
+                        <p>"ABC International School has been a transformative experience for our child. The dedication of the teachers and the holistic approach to education are truly remarkable."</p>
+                        <div class="author">Jane Doe</div>
+                        <div class="role">Parent of a Grade 5 Student</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/4c51bf/ffffff?text=P2" alt="Parent 2">
+                        <p>"The school's focus on critical thinking and character development has prepared my son not just for academics, but for life. We couldn't be happier!"</p>
+                        <div class="author">John Smith</div>
+                        <div class="role">Parent of a Grade 9 Student</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/4c51bf/ffffff?text=A1" alt="Alumni 1">
+                        <p>"As an alumna, I can confidently say that ABC International School provided me with a strong foundation and instilled values that continue to guide me in my career."</p>
+                        <div class="author">Emily White</div>
+                        <div class="role">Alumna, Class of 2020</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notice Board Section -->
+        <section id="notices" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Notice Board</h2>
+                <div class="card max-w-4xl mx-auto p-6 md:p-8">
+                    <!-- Search and Filter Bar -->
+                    <div class="mb-6 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
+                        <input type="text" id="notice-search" placeholder="Search notices..." class="w-full md:w-2/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="notice-filter" class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="all">All Categories</option>
+                            <option value="academic">Academic</option>
+                            <option value="event">Events</option>
+                            <option value="general">General</option>
+                            <option value="admission">Admission</option>
+                        </select>
+                    </div>
+
+                    <ul class="divide-y divide-gray-200" id="notice-list">
+                        <!-- Notice items will be dynamically loaded or filtered here -->
+                        <li class="notice-item" data-category="admission">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-file-alt notice-icon"></i>
+                                    <span class="notice-item-title">Notice Regarding Application Approval for B.Ed Entrance Examination-2025</span>
+                                    <span class="new-badge">NEW</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>July 8, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>Admission</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Notice Regarding Application Approval for B.Ed Entrance Examination-2025', 'This is the detailed content for the notice regarding application approval for the B.Ed Entrance Examination 2025. Please check your application status online.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="admission">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-edit notice-icon"></i>
+                                    <span class="notice-item-title">Notice Regarding Correction in the Submitted Application Form for B.Ed Entrance Examination - 2025</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>July 5, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>Admission</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Notice Regarding Correction in the Submitted Application Form', 'Detailed information about making corrections to your submitted B.Ed Entrance Examination application form.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="admission">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-calendar-alt notice-icon"></i>
+                                    <span class="notice-item-title">Notice Regarding Extension of the Last Date for Submission of Application Forms for B.Ed Entrance Examination-2025</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>June 30, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>Admission</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Notice Regarding Extension of Last Date', 'The deadline for submitting B.Ed Entrance Examination application forms has been extended to July 15, 2025.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="general">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-info-circle notice-icon"></i>
+                                    <span class="notice-item-title">Notification regarding the submission of Application fees for B.Ed Entrance Examination- 2025</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>June 25, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>General</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Notification regarding Application Fees', 'Details on how to submit application fees for the B.Ed Entrance Examination 2025.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="academic">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-book-open notice-icon"></i>
+                                    <span class="notice-item-title">Guidelines & Timelines for filling up B.Ed Entrance Application Form- 2025</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>June 20, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>Academic</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Guidelines & Timelines for B.Ed Application', 'Comprehensive guidelines and timelines for completing the B.Ed Entrance Application Form 2025.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="event">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-bullhorn notice-icon"></i>
+                                    <span class="notice-item-title">Notification Regarding B.Ed Entrance Examination- 2025</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>June 15, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>Event</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Notification Regarding B.Ed Entrance Examination', 'Official notification about the B.Ed Entrance Examination 2025, including dates and eligibility.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
+                        <li class="notice-item" data-category="general">
+                            <div class="notice-item-content">
+                                <div class="notice-item-header">
+                                    <i class="fas fa-lightbulb notice-icon"></i>
+                                    <span class="notice-item-title">Important notice for new academic session 2025-2026</span>
+                                </div>
+                                <div class="notice-item-meta">
+                                    <i class="far fa-calendar-alt"></i> <span>May 20, 2025</span>
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-tag"></i> <span>General</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary notice-item-link" onclick="showNoticeModal('Important notice for new academic session', 'This notice contains important information for all students regarding the upcoming academic session 2025-2026, including class timings and new policies.')">
+                                View Details
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2 18H6v-2h6v2zm0-4H6v-2h6v2zm-2-4H6v-2h4v2zm3-6V3.5L18.5 9H13z"/></svg>
+                            </button>
+                        </li>
                     </ul>
+                    <div class="text-center mt-8">
+                        <button id="load-more-notices" class="btn-primary">Load More Notices</button>
+                    </div>
                 </div>
-              
-             </div>
-            <div class="mt-8 text-center">
-                <button id="pdf-download-btn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors">Download as PDF</button>
-                <button id="back-to-status-btn" class="ml-4 bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-gray-700 transition-colors">Back</button>
             </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section id="call-to-action" class="py-16 md:py-24 bg-blue-700 text-white text-center">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Ready to Join Our Family?</h2>
+                <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
+                    Discover the difference a world-class education can make. We invite you to explore our campus or apply today!
+                </p>
+                <div class="space-x-4">
+                    <a href="#admissions" class="btn-secondary inline-block !bg-white !text-blue-700 hover:!bg-gray-200">Apply Now</a>
+                    <a href="#contact" class="btn-primary inline-block !bg-transparent border-2 border-white hover:!bg-white hover:!text-blue-700">Contact Us</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Us Section -->
+        <section id="contact" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="section-heading">Contact Us</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-4xl mx-auto">
+                    <div>
+                        <p class="text-lg text-gray-700 mb-4">Have questions? We'd love to hear from you!</p>
+                        <div class="space-y-4 text-gray-700">
+                            <p class="flex items-center">
+                                <i class="fas fa-map-marker-alt w-6 h-6 mr-3 text-blue-600"></i>
+                                123 School Road, Knowledge City, State, 12345
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-envelope w-6 h-6 mr-3 text-blue-600"></i>
+                                admissions@abcschool.edu
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-phone-alt w-6 h-6 mr-3 text-blue-600"></i>
+                                +1 (123) 456-7890
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-clock w-6 h-6 mr-3 text-blue-600"></i>
+                                Mon - Fri: 8:00 AM - 4:00 PM
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <form action="#" method="POST" class="space-y-4">
+                            <div>
+                                <label for="name" class="sr-only">Name</label>
+                                <input type="text" id="name" name="name" placeholder="Your Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="email" class="sr-only">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Your Email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="subject" class="sr-only">Subject</label>
+                                <input type="text" id="subject" name="subject" placeholder="Subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="message" class="sr-only">Message</label>
+                                <textarea id="message" name="message" rows="4" placeholder="Your Message" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary w-full">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-bg py-12">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4">ABC International School</h3>
+                <p class="text-sm">Dedicated to nurturing young minds and fostering a love for lifelong learning.</p>
+                <div class="flex space-x-4 mt-4">
+                    <a href="#" class="text-white hover:text-blue-300 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white hover:text-blue-300 transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white hover:text-blue-300 transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white hover:text-blue-300 transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#about" class="footer-link text-sm">About Us</a></li>
+                    <li><a href="#academics" class="footer-link text-sm">Academics</a></li>
+                    <li><a href="#admissions" class="footer-link text-sm">Admissions</a></li>
+                    <li><a href="#campus" class="footer-link text-sm">Campus Life</a></li>
+                    <li><a href="#news" class="footer-link text-sm">News & Events</a></li>
+                    <li><a href="#notices" class="footer-link text-sm">Notice Board</a></li>
+                    <li><a href="#gallery" class="footer-link text-sm">Gallery</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Admissions</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="footer-link text-sm">Apply Online</a></li>
+                    <li><a href="status.html" class="footer-link text-sm">Check Status</a></li>
+                    <li><a href="#" class="footer-link text-sm">Fee Structure</a></li>
+                    <li><a href="#" class="footer-link text-sm">Scholarships</a></li>
+                    <li><a href="#" class="footer-link text-sm">Admission FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Contact</h3>
+                <p class="text-sm mb-2">123 School Road, Knowledge City, State, 12345</p>
+                <p class="text-sm mb-2">Email: <a href="mailto:admissions@abcschool.edu" class="footer-link">admissions@abcschool.edu</a></p>
+                <p class="text-sm mb-2">Phone: <a href="tel:+11234567890" class="footer-link">+1 (123) 456-7890</a></p>
+                <p class="text-sm">Office Hours: Mon-Fri, 8 AM - 4 PM</p>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+            &copy; 2025 ABC International School. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Notice Detail Modal -->
+    <div id="noticeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeNoticeModal()">&times;</span>
+            <h3 id="modalNoticeTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
+            <p id="modalNoticeContent" class="text-gray-700"></p>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
-            authDomain: "schooladmsn.firebaseapp.com",
-            projectId: "schooladmsn",
-            storageBucket: "schooladmsn.firebasestorage.app",
-            messagingSenderId: "355479237462",
-            appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
-            measurementId: "G-LJW1ZQTGSV"
-        };
-        // --- END OF FIREBASE CONFIGURATION ---
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Sections
-        const statusCheckSection = document.getElementById('status-check-section');
-        const statusDisplaySection = document.getElementById('status-display-section');
-        const admitCardDisplay = document.getElementById('admit-card-display');
-
-        // Forms and Buttons
-        const statusForm = document.getElementById('status-form');
-        const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
-        const backToCheckBtn = document.getElementById('back-to-check-btn');
-        const pdfDownloadBtn = document.getElementById('pdf-download-btn');
-        const backToStatusBtn = document.getElementById('back-to-status-btn');
-
-        let currentApplicationData = null;
-
-        statusForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // Show a loading indicator (optional, but good for UX)
-            const checkStatusBtn = document.getElementById('check-status-btn');
-            checkStatusBtn.textContent = 'Checking...';
-            checkStatusBtn.disabled = true;
-
-            const appNo = document.getElementById('applicationNo').value.trim();
-            const dob = document.getElementById('dob').value;
-
-            if (!appNo || !dob) {
-                // Use a custom modal or message box instead of alert
-                showCustomAlert("Please enter both Application Number and Date of Birth.");
-                checkStatusBtn.textContent = 'Check Status';
-                checkStatusBtn.disabled = false;
-                return;
-            }
-
-            try {
-                const q = query(collection(db, "applications"), where("applicationNo", "==", appNo), where("dob", "==", dob));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    showCustomAlert("Invalid details. Please check your Application Number and Date of Birth.");
-                    currentApplicationData = null;
-                } else {
-                    currentApplicationData = querySnapshot.docs[0].data();
-                    displayStatus(currentApplicationData);
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
                 }
-            } catch (error) {
-                console.error("Error fetching application status: ", error);
-                showCustomAlert("An error occurred while checking status. Please try again.");
-            } finally {
-                checkStatusBtn.textContent = 'Check Status';
-                checkStatusBtn.disabled = false;
+            });
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking outside (optional, but good UX)
+        document.addEventListener('click', (event) => {
+            const isClickInsideMenu = mobileMenu.contains(event.target) || mobileMenuButton.contains(event.target);
+            if (!isClickInsideMenu && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
             }
         });
 
-        function displayStatus(data) {
-            document.getElementById('status-name').textContent = data.fullName;
-            const statusBadge = document.getElementById('status-badge');
-            statusBadge.textContent = data.status;
-            statusBadge.className = `text-lg status-badge status-${data.status.replace(' ', '-')}`;
-            
-            const statusMessage = document.getElementById('status-message');
-            downloadAdmitCardBtn.classList.add('hidden');
-
-            switch(data.status) {
-                case 'Submitted':
-                    statusMessage.textContent = 'Your application has been submitted and is awaiting review.';
-                    break;
-                case 'Under Review':
-                    statusMessage.textContent = 'Your application is currently being reviewed by the admission committee.';
-                    break;
-                case 'Accepted':
-                    statusMessage.textContent = 'Congratulations! Your application has been accepted for the entrance test. You can now download your admit card.';
-                    downloadAdmitCardBtn.classList.remove('hidden');
-                    break;
-                case 'Rejected':
-                    statusMessage.textContent = 'We regret to inform you that your application was not successful at this time.';
-                    break;
-                default:
-                    statusMessage.textContent = 'Unknown status. Please contact the admissions office for more information.';
+        // Close mobile menu on resize if it becomes desktop view
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) { // Tailwind's 'md' breakpoint
+                mobileMenu.classList.remove('active');
             }
-            statusCheckSection.classList.add('hidden');
-            statusDisplaySection.classList.remove('hidden');
-        }
+        });
 
-        downloadAdmitCardBtn.addEventListener('click', () => {
-            if (currentApplicationData) {
-                populateAdmitCard(currentApplicationData);
-                statusDisplaySection.classList.add('hidden');
-                admitCardDisplay.classList.remove('hidden');
+        // Notice Board Features
+        const noticeSearchInput = document.getElementById('notice-search');
+        const noticeFilterSelect = document.getElementById('notice-filter');
+        const noticeList = document.getElementById('notice-list');
+        const loadMoreButton = document.getElementById('load-more-notices');
+        const noticeItems = Array.from(noticeList.children); // All original notice items
+
+        let visibleNoticeCount = 5; // Initial number of notices to show
+
+        // Function to render notices
+        function renderNotices() {
+            noticeList.innerHTML = ''; // Clear current list
+            const searchTerm = noticeSearchInput.value.toLowerCase();
+            const filterCategory = noticeFilterSelect.value;
+
+            let count = 0;
+            noticeItems.forEach(item => {
+                const title = item.querySelector('.notice-item-title').textContent.toLowerCase();
+                const category = item.dataset.category;
+
+                const matchesSearch = title.includes(searchTerm);
+                const matchesFilter = filterCategory === 'all' || category === filterCategory;
+
+                if (matchesSearch && matchesFilter && count < visibleNoticeCount) {
+                    item.style.display = 'flex'; // Show item
+                    noticeList.appendChild(item); // Re-append to maintain order after filtering
+                    count++;
+                } else {
+                    item.style.display = 'none'; // Hide item
+                }
+            });
+
+            // Show/hide load more button
+            if (count < noticeItems.length) {
+                loadMoreButton.style.display = 'block';
             } else {
-                showCustomAlert("No application data found to generate admit card.");
+                loadMoreButton.style.display = 'none';
+            }
+        }
+
+        // Event Listeners for search and filter
+        noticeSearchInput.addEventListener('keyup', renderNotices);
+        noticeFilterSelect.addEventListener('change', renderNotices);
+
+        // Load More functionality
+        loadMoreButton.addEventListener('click', () => {
+            visibleNoticeCount += 5; // Load 5 more notices
+            renderNotices();
+        });
+
+        // Initial render on page load
+        renderNotices();
+
+        // Modal functionality for notice details
+        const noticeModal = document.getElementById('noticeModal');
+        const modalNoticeTitle = document.getElementById('modalNoticeTitle');
+        const modalNoticeContent = document.getElementById('modalNoticeContent');
+
+        function showNoticeModal(title, content) {
+            modalNoticeTitle.textContent = title;
+            modalNoticeContent.textContent = content;
+            noticeModal.style.display = 'flex'; // Use flex to center
+        }
+
+        function closeNoticeModal() {
+            noticeModal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == noticeModal) {
+                closeNoticeModal();
             }
         });
-
-        function populateAdmitCard(data) {
-            document.getElementById('card-roll-no').textContent = `ROLL${data.applicationNo.slice(-6)}`; // Example Roll No
-            document.getElementById('card-name').textContent = data.fullName;
-            document.getElementById('card-dob').textContent = new Date(data.dob + 'T00:00:00').toLocaleDateString('en-GB');
-            document.getElementById('card-app-no').textContent = data.applicationNo;
-            const photoEl = document.getElementById('card-photo');
-            photoEl.src = data.photoUrl;
-            photoEl.onerror = () => { photoEl.src = 'https://placehold.co/150x200?text=Photo'; };
-        }
-        
-        pdfDownloadBtn.addEventListener('click', () => {
-            const admitCardContent = document.getElementById('admit-card-content');
-            // Temporarily hide buttons for PDF generation
-            const buttonsToHide = document.querySelectorAll('#admit-card-display button');
-            buttonsToHide.forEach(btn => btn.style.display = 'none');
-
-            const opt = {
-                margin: 0.5,
-                filename: `Admit_Card_${currentApplicationData.applicationNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().from(admitCardContent).set(opt).save().then(() => {
-                // Show buttons again after PDF generation
-                buttonsToHide.forEach(btn => btn.style.display = '');
-            });
-        });
-
-        backToCheckBtn.addEventListener('click', () => {
-            statusDisplaySection.classList.add('hidden');
-            statusCheckSection.classList.remove('hidden');
-            statusForm.reset();
-            currentApplicationData = null; // Clear data on reset
-        });
-
-        backToStatusBtn.addEventListener('click', () => {
-            admitCardDisplay.classList.add('hidden');
-            statusDisplaySection.classList.remove('hidden');
-        });
-
-        // Custom Alert/Message Box Function (replaces alert())
-        function showCustomAlert(message) {
-            const existingAlert = document.getElementById('custom-alert-modal');
-            if (existingAlert) existingAlert.remove();
-
-            const alertModal = document.createElement('div');
-            alertModal.id = 'custom-alert-modal';
-            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
-            alertModal.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-                    <p class="text-gray-600 mb-6">${message}</p>
-                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-                </div>
-            `;
-            document.body.appendChild(alertModal);
-
-            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
-                alertModal.remove();
-            });
-        }
-
     </script>
 </body>
 </html>
