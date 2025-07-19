@@ -44,9 +44,19 @@
                         <label for="address" class="block text-sm font-medium text-gray-700">Full Address</label>
                         <textarea id="address" rows="3" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                     </div>
-                     <div class="md:col-span-2">
+                    <!-- Photo URL Input (reverted from file upload) -->
+                    <div class="md:col-span-2">
                         <label for="photoUrl" class="block text-sm font-medium text-gray-700">Link to Passport Size Photo</label>
                         <input type="url" id="photoUrl" placeholder="https://example.com/photo.jpg" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <!-- Academic Fields -->
+                    <div>
+                        <label for="lastPassedExam" class="block text-sm font-medium text-gray-700">Last Passed Exam <span class="text-red-500">*</span></label>
+                        <input type="text" id="lastPassedExam" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10th Grade, High School Diploma" required>
+                    </div>
+                    <div>
+                        <label for="percentageCgpa" class="block text-sm font-medium text-gray-700">Percentage / CGPA <span class="text-red-500">*</span></label>
+                        <input type="text" id="percentageCgpa" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 85% or 9.2 CGPA" required>
                     </div>
                 </div>
 
@@ -88,14 +98,14 @@
 
         // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
         const firebaseConfig = {
-    apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM",
-    authDomain: "schooladmsn.firebaseapp.com",
-    projectId: "schooladmsn",
-    storageBucket: "schooladmsn.firebasestorage.app",
-    messagingSenderId: "355479237462",
-    appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
-    measurementId: "G-LJW1ZQTGSV"
-  };
+            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
+            authDomain: "schooladmsn.firebaseapp.com",
+            projectId: "schooladmsn",
+            storageBucket: "schooladmsn.firebasestorage.app",
+            messagingSenderId: "355479237462",
+            appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
+            measurementId: "G-LJW1ZQTGSV"
+        };
         // --- END OF FIREBASE CONFIGURATION ---
 
         const app = initializeApp(firebaseConfig);
@@ -113,7 +123,7 @@
             setLoading(true);
 
             // Generate a unique application number
-            const applicationNo = `MZRSCL${Date.now()}`;
+            const applicationNo = `SCHL${Date.now()}`;
 
             try {
                 // Get form data
@@ -123,11 +133,12 @@
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
                     address: document.getElementById('address').value,
-                    photoUrl: document.getElementById('photoUrl').value,
+                    photoUrl: document.getElementById('photoUrl').value, // Reverted to URL input
+                    lastPassedExam: document.getElementById('lastPassedExam').value,
+                    percentageCgpa: document.getElementById('percentageCgpa').value,
                     applicationNo: applicationNo,
                     status: "Submitted", // Initial status
                     submittedAt: serverTimestamp()
-                    userId: userId
                 };
 
                 // Add a new document with a generated ID to the "applications" collection
@@ -140,7 +151,7 @@
 
             } catch (error) {
                 console.error("Error adding document: ", error);
-                alert("There was an error submitting your application. Please try again.");
+                showCustomAlert("There was an error submitting your application. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -162,6 +173,28 @@
             successModal.classList.remove('flex');
             form.reset();
         });
+
+        // Custom Alert/Message Box Function (replaces alert())
+        function showCustomAlert(message) {
+            const existingAlert = document.getElementById('custom-alert-modal');
+            if (existingAlert) existingAlert.remove();
+
+            const alertModal = document.createElement('div');
+            alertModal.id = 'custom-alert-modal';
+            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
+            alertModal.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
+                    <p class="text-gray-600 mb-6">${message}</p>
+                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
+                </div>
+            `;
+            document.body.appendChild(alertModal);
+
+            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
+                alertModal.remove();
+            });
+        }
     </script>
 </body>
 </html>
