@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your School Name - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://placehold.co/1600x800/334155/FFFFFF?text=School+Campus');
+            background-size: cover;
+            background-position: center;
+        }
+        .notice-item:hover {
+            transform: translateX(5px);
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="#" class="flex items-center space-x-3">
+                        <img class="h-14 w-14" src="https://placehold.co/100x100/003366/FFFFFF?text=LOGO" alt="School Logo">
+                        <div class="font-poppins">
+                            <h1 class="text-xl font-bold text-blue-900">YOUR SCHOOL NAME</h1>
+                            <p class="text-xs text-gray-500">A Tradition of Excellence</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8 font-medium">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">Home</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">About Us</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">Academics</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">Admissions</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">Contact</a>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <a href="#" class="block py-3 px-4 text-sm text-gray-700 hover:bg-gray-100">Home</a>
+            <a href="#" class="block py-3 px-4 text-sm text-gray-700 hover:bg-gray-100">About Us</a>
+            <a href="#" class="block py-3 px-4 text-sm text-gray-700 hover:bg-gray-100">Academics</a>
+            <a href="#" class="block py-3 px-4 text-sm text-gray-700 hover:bg-gray-100">Admissions</a>
+            <a href="#" class="block py-3 px-4 text-sm text-gray-700 hover:bg-gray-100">Contact</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-bg h-[60vh] flex items-center justify-center text-white text-center">
+            <div class="max-w-3xl px-4">
+                <h2 class="text-4xl md:text-6xl font-bold font-poppins animate-fade-in-down">Nurturing Future Leaders</h2>
+                <p class="mt-4 text-lg md:text-xl animate-fade-in-up">Committed to providing quality education and fostering an environment of intellectual growth and creativity.</p>
+                <a href="#" class="mt-8 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-105">Learn More</a>
+            </div>
+        </section>
+
+        <!-- Main Content Area -->
+        <section class="py-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+                    <!-- Left Column: About & Principal's Message -->
+                    <div class="lg:col-span-2">
+                        <!-- About Us -->
+                        <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-3xl font-bold font-poppins text-blue-900 mb-4">Welcome to Our School</h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Welcome to [Your School Name], a place where young minds are nurtured, talents are discovered, and futures are shaped. Established in [Year], our school has been a beacon of learning, dedicated to academic excellence and the holistic development of every student. Our mission is to cultivate a vibrant learning community that prepares students to be responsible citizens and leaders in a global society.
+                            </p>
+                            <p class="text-gray-600 leading-relaxed">
+                                We offer a comprehensive curriculum from kindergarten to high school, supported by a team of passionate and experienced educators. Our state-of-the-art facilities and a wide range of extracurricular activities provide students with ample opportunities to explore their interests and excel beyond the classroom.
+                            </p>
+                        </div>
+
+                        <!-- Principal's Message -->
+                        <div class="bg-white p-8 rounded-lg shadow-lg mt-12">
+                            <h3 class="text-3xl font-bold font-poppins text-blue-900 mb-6">Message from the Principal</h3>
+                            <div class="flex flex-col sm:flex-row items-center gap-6">
+                                <img src="https://placehold.co/150x150/E2E8F0/4A5568?text=Principal" alt="Principal Photo" class="w-32 h-32 rounded-full object-cover flex-shrink-0">
+                                <div>
+                                    <p class="text-gray-600 leading-relaxed italic">"It is my pleasure to welcome you to our school's family. We believe that every child is unique and possesses a treasure of potential. Our goal is to provide a stimulating and safe learning environment where students can thrive academically, socially, and emotionally. We are committed to working in partnership with parents to help our students achieve their dreams."</p>
+                                    <p class="mt-4 font-bold text-gray-800">Dr. Jane Doe</p>
+                                    <p class="text-sm text-gray-500">Principal, [Your School Name]</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Notice Board & Quick Links -->
+                    <div>
+                        <!-- Notice Board -->
+                        <div class="bg-white p-6 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold font-poppins text-blue-900 border-b-2 pb-2 mb-4">Notice Board</h3>
+                            <ul class="space-y-4">
+                                <li class="notice-item"><a href="#" class="text-blue-700 hover:underline"><i class="fas fa-bullhorn mr-2"></i>Admissions for 2025-26 session are now open. <span class="text-red-500 font-semibold text-xs animate-pulse">New!</span></a></li>
+                                <li class="notice-item"><a href="#" class="text-blue-700 hover:underline"><i class="fas fa-calendar-alt mr-2"></i>Schedule for Mid-Term Examinations (Grades 6-12).</a></li>
+                                <li class="notice-item"><a href="#" class="text-blue-700 hover:underline"><i class="fas fa-trophy mr-2"></i>Results of the Inter-House Sports Competition.</a></li>
+                                <li class="notice-item"><a href="#" class="text-blue-700 hover:underline"><i class="fas fa-paint-brush mr-2"></i>Annual Art & Science Exhibition on Oct 15th.</a></li>
+                                <li class="notice-item"><a href="#" class="text-blue-700 hover:underline"><i class="fas fa-bus mr-2"></i>Updated bus routes and timings for the new term.</a></li>
+                            </ul>
+                            <a href="#" class="text-right block mt-4 font-semibold text-blue-600 hover:underline">View All &rarr;</a>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div class="bg-white p-6 rounded-lg shadow-lg mt-8">
+                            <h3 class="text-2xl font-bold font-poppins text-blue-900 border-b-2 pb-2 mb-4">Quick Links</h3>
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <a href="#" class="block bg-blue-50 hover:bg-blue-100 p-4 rounded-lg transition">
+                                    <i class="fas fa-user-graduate text-3xl text-blue-600"></i>
+                                    <p class="mt-2 font-semibold text-sm">Alumni</p>
+                                </a>
+                                <a href="#" class="block bg-blue-50 hover:bg-blue-100 p-4 rounded-lg transition">
+                                    <i class="fas fa-images text-3xl text-blue-600"></i>
+                                    <p class="mt-2 font-semibold text-sm">Gallery</p>
+                                </a>
+                                <a href="#" class="block bg-blue-50 hover:bg-blue-100 p-4 rounded-lg transition">
+                                    <i class="fas fa-calendar-check text-3xl text-blue-600"></i>
+                                    <p class="mt-2 font-semibold text-sm">Events</p>
+                                </a>
+                                <a href="#" class="block bg-blue-50 hover:bg-blue-100 p-4 rounded-lg transition">
+                                    <i class="fas fa-download text-3xl text-blue-600"></i>
+                                    <p class="mt-2 font-semibold text-sm">Downloads</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-900 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- About School -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4">About Us</h4>
+                    <p class="text-sm text-blue-200">[Your School Name] is a premier educational institution dedicated to fostering academic excellence and holistic student development since [Year].</p>
+                </div>
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-blue-200 hover:text-white">Admissions</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white">Academic Calendar</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white">Sitemap</a></li>
+                    </ul>
+                </div>
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Contact Us</h4>
+                    <address class="text-sm not-italic text-blue-200 space-y-2">
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>123 Education Lane, Guwahati, Assam</p>
+                        <p><i class="fas fa-phone-alt mr-2"></i>(123) 456-7890</p>
+                        <p><i class="fas fa-envelope mr-2"></i>info@yourschool.com</p>
+                    </address>
+                </div>
+                <!-- Social Media -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Connect With Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-blue-200 hover:text-white text-2xl"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-blue-200 hover:text-white text-2xl"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-blue-200 hover:text-white text-2xl"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-blue-200 hover:text-white text-2xl"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-blue-800 pt-6 text-center text-sm text-blue-300">
+                <p>&copy; 2025 Your School Name. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = mobileMenuButton.querySelector('i');
+
+        mobileMenuButton.addEventListener('click', () => {
+            const isExpanded = mobileMenu.classList.toggle('hidden');
+            if (isExpanded) {
+                menuIcon.classList.remove('fa-times');
+                menuIcon.classList.add('fa-bars');
+            } else {
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+            }
+        });
+    </script>
+
+</body>
+</html>
