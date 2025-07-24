@@ -376,8 +376,9 @@
         import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, getDoc, setDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+        // IMPORTANT: Replace with your actual Firebase config
         const firebaseConfig = {
-            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
+            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM",
             authDomain: "schooladmsn.firebaseapp.com",
             projectId: "schooladmsn",
             storageBucket: "schooladmsn.firebasestorage.app",
@@ -390,6 +391,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // DOM Elements
         const tableBody = document.getElementById('applications-table-body');
         const loadingState = document.getElementById('loading-state');
         const detailsModal = document.getElementById('details-modal');
@@ -407,23 +409,23 @@
         const customAlertMessage = document.getElementById('custom-alert-message');
         const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
 
-        // New elements for summary cards
+        // Summary Cards
         const totalApplicationsEl = document.getElementById('total-applications');
         const submittedApplicationsEl = document.getElementById('submitted-applications');
         const underReviewApplicationsEl = document.getElementById('under-review-applications');
         const acceptedApplicationsEl = document.getElementById('accepted-applications');
         const rejectedApplicationsEl = document.getElementById('rejected-applications');
 
-        // New elements for delete confirmation
+        // Delete Confirmation Modal
         const deleteConfirmModal = document.getElementById('delete-confirm-modal');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
 
-        // New elements for application status toggle
+        // Application Status Toggle
         const appStatusToggle = document.getElementById('app-status-toggle');
         const appStatusText = document.getElementById('app-status-text');
 
-        // New elements for Merit List
+        // Merit List Elements
         const generateMeritListBtn = document.getElementById('generate-merit-list-btn');
         const meritListModal = document.getElementById('merit-list-modal');
         const meritListContent = document.getElementById('merit-list-content');
@@ -432,26 +434,28 @@
         const exportMeritPdfBtn = document.getElementById('export-merit-pdf-btn');
 
         let currentEditingDocId = null;
-        let currentDeletingDocId = null; // To store the ID of the application to be deleted
-        let allApplications = []; // Store all applications for filtering/searching
-        let meritListData = []; // Store data for the merit list
+        let currentDeletingDocId = null;
+        let allApplications = []; // Stores all applications fetched from Firestore
+        let meritListData = []; // Stores data specifically for the merit list
 
         // --- Authentication Check ---
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 // User is not logged in, redirect to login page
+                console.log("User not authenticated, redirecting to login.");
                 window.location.href = 'admin-login.html';
             } else {
                 // User is logged in, fetch applications and application status
+                console.log("User authenticated:", user.uid);
                 fetchApplications();
-                fetchApplicationStatus(); // Fetch status on admin login
+                fetchApplicationStatus();
             }
         });
 
         logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                // Redirect to login page after logout
+                console.log("User logged out successfully.");
                 window.location.href = 'admin-login.html';
             } catch (error) {
                 console.error("Error logging out: ", error);
@@ -459,7 +463,7 @@
             }
         });
 
-        // --- Application Status Toggle Logic ---
+        // --- Application Status Toggle Logic (Open/Closed for New Applications) ---
         const appStatusDocRef = doc(db, "settings", "appStatus");
 
         async function fetchApplicationStatus() {
@@ -471,12 +475,14 @@
                     appStatusText.textContent = data.applicationsEnabled ? "Open" : "Closed";
                     appStatusText.classList.toggle('text-green-600', data.applicationsEnabled);
                     appStatusText.classList.toggle('text-red-600', !data.applicationsEnabled);
+                    console.log("Application receiving status fetched:", data.applicationsEnabled ? "Open" : "Closed");
                 } else {
                     // If document doesn't exist, initialize it as open
                     await setDoc(appStatusDocRef, { applicationsEnabled: true });
                     appStatusToggle.checked = true;
                     appStatusText.textContent = "Open";
                     appStatusText.classList.add('text-green-600');
+                    console.log("Application receiving status initialized to Open.");
                 }
             } catch (error) {
                 console.error("Error fetching application status: ", error);
@@ -492,6 +498,7 @@
                 appStatusText.classList.toggle('text-green-600', isEnabled);
                 appStatusText.classList.toggle('text-red-600', !isEnabled);
                 showCustomAlert(`Application receiving is now ${isEnabled ? 'OPEN' : 'CLOSED'}.`);
+                console.log("Application receiving status updated to:", isEnabled ? "Open" : "Closed");
             } catch (error) {
                 console.error("Error updating application status: ", error);
                 showCustomAlert("Failed to update application receiving status.");
@@ -500,13 +507,14 @@
             }
         });
 
-
+        // --- Fetch and Render Applications ---
         async function fetchApplications() {
             loadingState.parentElement.classList.remove('hidden');
             tableBody.innerHTML = ''; // Clear existing rows
             tableBody.appendChild(loadingState.parentElement);
 
             try {
+                // Ordering by 'submittedAt' to get the latest applications first
                 const q = query(collection(db, "applications"), orderBy("submittedAt", "desc"));
                 const querySnapshot = await getDocs(q);
                 
@@ -515,18 +523,20 @@
                 if (querySnapshot.empty) {
                     tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-500">No applications found.</td></tr>';
                     allApplications = [];
-                    updateSummaryCards(); // Update summary cards even if empty
+                    updateSummaryCards();
+                    console.log("No applications found in Firestore.");
                     return;
                 }
 
                 allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateSummaryCards(); // Update summary cards with new data
-                applyFiltersAndSearch(); // Render all initially, applying any active filters/search
+                console.log(`Fetched ${allApplications.length} applications.`);
+                updateSummaryCards();
+                applyFiltersAndSearch(); // Render applications based on current filters/search
             } catch (error) {
                 console.error("Error fetching applications: ", error);
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-red-500">Error loading data. Please try again.</td></tr>';
                 allApplications = [];
-                updateSummaryCards(); // Update summary cards on error
+                updateSummaryCards();
             }
         }
 
@@ -542,18 +552,20 @@
             underReviewApplicationsEl.textContent = underReview;
             acceptedApplicationsEl.textContent = accepted;
             rejectedApplicationsEl.textContent = rejected;
+            console.log("Summary cards updated. Total:", total, "Submitted:", submitted, "Accepted:", accepted);
         }
 
         function renderApplications(applicationsToRender) {
             tableBody.innerHTML = ''; // Clear table before rendering
             if (applicationsToRender.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-500">No matching applications found.</td></tr>';
+                console.log("No applications to render after filtering/searching.");
                 return;
             }
 
             applicationsToRender.forEach((data) => {
                 const row = document.createElement('tr');
-                row.className = 'table-row'; // Apply new class for styling
+                row.className = 'table-row';
                 row.innerHTML = `
                     <td class="p-4 text-sm">${data.applicationNo}</td>
                     <td class="p-4 text-sm">${data.fullName}</td>
@@ -566,6 +578,7 @@
                 `;
                 tableBody.appendChild(row);
             });
+            console.log(`Rendered ${applicationsToRender.length} applications.`);
 
             // Add event listeners to new "View" buttons
             document.querySelectorAll('.view-btn').forEach(button => {
@@ -586,6 +599,7 @@
             // Filter by status
             if (selectedStatus !== 'All') {
                 filteredApplications = filteredApplications.filter(app => app.status === selectedStatus);
+                console.log("Filtered by status:", selectedStatus);
             }
 
             // Filter by search term (application number or full name)
@@ -594,6 +608,7 @@
                     app.applicationNo.toLowerCase().includes(searchTerm) ||
                     app.fullName.toLowerCase().includes(searchTerm)
                 );
+                console.log("Filtered by search term:", searchTerm);
             }
             renderApplications(filteredApplications);
         }
@@ -601,7 +616,10 @@
         function viewDetails(docId) {
             currentEditingDocId = docId;
             const data = allApplications.find(app => app.id === docId);
-            if (!data) return;
+            if (!data) {
+                console.warn("No data found for document ID:", docId);
+                return;
+            }
             
             modalContent.innerHTML = `
                 <div class="modal-content-grid">
@@ -631,11 +649,16 @@
             statusSelect.value = data.status;
             detailsModal.classList.remove('hidden');
             detailsModal.classList.add('flex');
+            console.log("Viewing details for application:", docId);
         }
 
         updateStatusBtn.addEventListener('click', async () => {
-            if (!currentEditingDocId) return;
+            if (!currentEditingDocId) {
+                console.warn("No application selected for status update.");
+                return;
+            }
             const newStatus = statusSelect.value;
+            console.log(`Attempting to update status for ${currentEditingDocId} to ${newStatus}`);
             updateStatusBtn.textContent = 'Updating...';
             updateStatusBtn.disabled = true;
 
@@ -649,6 +672,7 @@
                 const updatedAppIndex = allApplications.findIndex(app => app.id === currentEditingDocId);
                 if (updatedAppIndex > -1) {
                     allApplications[updatedAppIndex].status = newStatus;
+                    console.log(`Local array updated for ${currentEditingDocId}. New status: ${allApplications[updatedAppIndex].status}`);
                 }
                 // Re-render the table and update summary cards
                 applyFiltersAndSearch(); 
@@ -667,6 +691,7 @@
             detailsModal.classList.add('hidden');
             detailsModal.classList.remove('flex');
             currentEditingDocId = null;
+            console.log("Details modal closed.");
         }
 
         modalCloseBtn.addEventListener('click', closeDetailsModal);
@@ -679,16 +704,21 @@
             currentDeletingDocId = docId;
             deleteConfirmModal.classList.remove('hidden');
             deleteConfirmModal.classList.add('flex');
+            console.log("Showing delete confirmation for:", docId);
         }
 
         cancelDeleteBtn.addEventListener('click', () => {
             deleteConfirmModal.classList.add('hidden');
             deleteConfirmModal.classList.remove('flex');
             currentDeletingDocId = null;
+            console.log("Delete cancelled.");
         });
 
         confirmDeleteBtn.addEventListener('click', async () => {
-            if (!currentDeletingDocId) return;
+            if (!currentDeletingDocId) {
+                console.warn("No application selected for deletion.");
+                return;
+            }
 
             confirmDeleteBtn.textContent = 'Deleting...';
             confirmDeleteBtn.disabled = true;
@@ -708,6 +738,7 @@
                 applyFiltersAndSearch();
                 updateSummaryCards();
                 showCustomAlert("Application deleted successfully!");
+                console.log("Application deleted:", currentDeletingDocId);
             } catch (error) {
                 console.error("Error deleting application: ", error);
                 showCustomAlert("Failed to delete application.");
@@ -719,12 +750,12 @@
             }
         });
 
-
         // Custom Alert/Message Box Function (replaces alert())
         function showCustomAlert(message) {
             customAlertMessage.textContent = message;
             customAlertModal.classList.remove('hidden');
             customAlertModal.classList.add('flex');
+            console.log("Custom Alert:", message);
         }
 
         customAlertOkBtn.addEventListener('click', () => {
@@ -738,11 +769,9 @@
         function convertToCsv(dataArray, headers) {
             if (dataArray.length === 0) return '';
 
-            // If headers are not provided, infer from first item keys
             const finalHeaders = headers || Object.keys(dataArray[0]);
             
             let csvContent = finalHeaders.map(header => {
-                // Escape headers if they contain commas or quotes
                 if (header.includes(',') || header.includes('"')) {
                     return `"${header.replace(/"/g, '""')}"`;
                 }
@@ -752,8 +781,11 @@
             dataArray.forEach(item => {
                 const row = finalHeaders.map(header => {
                     let value = item[header] !== undefined ? item[header] : 'N/A';
-                    if (header === 'Submitted At' && item.submittedAt) {
+                    if (header === 'Submitted At' && item.submittedAt && typeof item.submittedAt.toDate === 'function') {
                         value = new Date(item.submittedAt.toDate()).toLocaleString();
+                    } else if (typeof value === 'object' && value !== null) {
+                         // Handle nested objects or arrays by stringifying them
+                        value = JSON.stringify(value);
                     }
                     if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
                         return `"${value.replace(/"/g, '""')}"`;
@@ -765,10 +797,9 @@
             return csvContent;
         }
 
-
         // Function to download CSV
         exportCsvBtn.addEventListener('click', () => {
-            const dataToExport = allApplications; // Export all data, or use filteredApplications if you want to export only currently displayed
+            const dataToExport = allApplications; // Export all data
             if (dataToExport.length === 0) {
                 showCustomAlert("No data to export.");
                 return;
@@ -784,7 +815,7 @@
             const csv = convertToCsv(dataToExport, headers);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            if (link.download !== undefined) { // Feature detection for download attribute
+            if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
                 link.setAttribute('download', 'admission_applications.csv');
@@ -792,6 +823,7 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                console.log("Exported all applications to CSV.");
             } else {
                 showCustomAlert("Your browser does not support downloading CSV directly. Please copy the data manually.");
             }
@@ -799,13 +831,12 @@
 
         // Function to export to PDF (using html2pdf.js)
         exportPdfBtn.addEventListener('click', () => {
-            const dataToExport = allApplications; // Export all, or filteredApplications
+            const dataToExport = allApplications; // Export all
             if (dataToExport.length === 0) {
                 showCustomAlert("No data to export.");
                 return;
             }
 
-            // Create a temporary div to render the table for PDF
             const tempDiv = document.createElement('div');
             tempDiv.style.padding = '20px';
             tempDiv.style.fontFamily = 'Inter, sans-serif';
@@ -820,8 +851,9 @@
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">DOB</th>
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Email</th>
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Phone</th>
-                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Last Exam</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Prev. Grade</th>
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Percentage/CGPA</th>
+                            <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Desired Grade</th>
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Submitted At</th>
                             <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 600; color: #4a5568;">Status</th>
                         </tr>
@@ -837,8 +869,9 @@
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.dob}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.email}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.phone}</td>
-                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.lastPassedExam || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.previousClassGrade || 'N/A'}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.percentageCgpa || 'N/A'}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.desiredClassGrade || 'N/A'}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleString() : 'N/A'}</td>
                         <td style="padding: 10px; font-size: 12px; color: #4a5568;">${item.status}</td>
                     </tr>
@@ -862,6 +895,7 @@
 
             html2pdf().from(tempDiv).set(opt).save().then(() => {
                 tempDiv.remove(); // Remove temporary div after PDF generation
+                console.log("Exported all applications to PDF.");
             });
         });
 
@@ -872,6 +906,8 @@
                 .filter(app => app.status === 'Accepted' && app.percentageCgpa !== undefined && app.percentageCgpa !== null)
                 .sort((a, b) => b.percentageCgpa - a.percentageCgpa); // Sort descending
 
+            console.log("Attempting to generate merit list. Filtered data count:", meritListData.length, meritListData);
+
             if (meritListData.length === 0) {
                 showCustomAlert("No accepted applications with percentage/CGPA found to generate a merit list.");
                 return;
@@ -880,6 +916,7 @@
             renderMeritList(meritListData);
             meritListModal.classList.remove('hidden');
             meritListModal.classList.add('flex');
+            console.log("Merit list modal shown.");
         });
 
         function renderMeritList(dataToRender) {
@@ -912,11 +949,13 @@
                 </table>
             `;
             meritListContent.innerHTML = tableHtml;
+            console.log("Merit list table rendered with", dataToRender.length, "entries.");
         }
 
         meritListCloseBtn.addEventListener('click', () => {
             meritListModal.classList.add('hidden');
             meritListModal.classList.remove('flex');
+            console.log("Merit list modal closed.");
         });
 
         // Export Merit List CSV
@@ -933,7 +972,7 @@
                 "Desired Class": item.desiredClassGrade || 'N/A',
                 "Percentage/CGPA": item.percentageCgpa !== undefined ? item.percentageCgpa.toFixed(2) : 'N/A'
             }));
-            const csv = convertToCsv(csvRows, headers); // Re-using general convertToCsv
+            const csv = convertToCsv(csvRows, headers);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             if (link.download !== undefined) {
@@ -944,6 +983,7 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                console.log("Exported merit list to CSV.");
             } else {
                 showCustomAlert("Your browser does not support downloading CSV directly. Please copy the data manually.");
             }
@@ -1002,6 +1042,7 @@
 
             html2pdf().from(tempDiv).set(opt).save().then(() => {
                 tempDiv.remove();
+                console.log("Exported merit list to PDF.");
             });
         });
 
