@@ -23,7 +23,7 @@
             </div>
 
             <!-- Application Status Message Area -->
-            <div id="application-status-message" class="text-center mb-6 p-4 rounded-lg bg-gray-100 hidden">
+            <div id="application-status-message" class="text-center mb-6 p-4 rounded-lg bg-gray-100">
                 <p class="text-lg font-semibold text-gray-700">Loading application status...</p>
                 <div class="flex justify-center items-center mt-2">
                     <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -166,8 +166,14 @@
 
         // Function to check application status and toggle form visibility
         async function checkApplicationStatusAndRenderForm() {
-            console.log("Checking application status...");
-            applicationStatusMessage.classList.remove('hidden'); // Show loading message
+            console.log("Attempting to check application status...");
+            applicationStatusMessage.classList.remove('hidden'); // Ensure loading message is visible
+            applicationStatusMessage.innerHTML = `
+                <p class="text-lg font-semibold text-gray-700">Loading application status...</p>
+                <div class="flex justify-center items-center mt-2">
+                    <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </div>
+            `;
             form.classList.add('hidden'); // Hide form initially
 
             try {
@@ -196,12 +202,15 @@
                     applicationStatusMessage.classList.add('hidden');
                     form.classList.remove('hidden');
                     console.warn("Application status document not found in Firestore. Assuming applications are OPEN.");
+                    // Optionally, you might want to force it to closed if the document *should* exist
+                    // applicationStatusMessage.innerHTML = `<p class="text-orange-600 text-lg font-semibold">Application status not set. Defaulting to OPEN.</p>`;
+                    // applicationStatusMessage.classList.remove('hidden');
                 }
             } catch (error) {
-                console.error("Error checking application status:", error);
+                console.error("Critical Error checking application status:", error); // Log the full error object
                 applicationStatusMessage.innerHTML = `
                     <p class="text-red-600 text-lg font-semibold mb-2">Error loading application status.</p>
-                    <p class="text-gray-600">Please try refreshing the page.</p>
+                    <p class="text-gray-600">Please try refreshing the page. Details in console.</p>
                 `;
                 applicationStatusMessage.classList.remove('hidden');
                 form.classList.add('hidden'); // Keep form hidden on error
@@ -215,11 +224,12 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Check status again before submission, just in case it changed while form was open
+            // Re-check status just before submission to prevent late submissions if status changes
             const appStatusDocRef = doc(db, "settings", "appStatus");
             const docSnap = await getDoc(appStatusDocRef);
             if (!docSnap.exists() || !docSnap.data().applicationsEnabled) {
                 showCustomAlert("Applications are currently closed. Your submission cannot be processed.");
+                console.warn("Attempted submission when applications were closed.");
                 return; // Prevent form submission
             }
 
@@ -236,7 +246,7 @@
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
                     address: document.getElementById('address').value,
-                    photoUrl: document.getElementById('photoUrl').value, // Reverted to URL input
+                    photoUrl: document.getElementById('photoUrl').value,
                     lastPassedExam: document.getElementById('lastPassedExam').value,
                     // Ensure percentageCgpa is stored as a number for merit list sorting
                     percentageCgpa: parseFloat(document.getElementById('percentageCgpa').value) || null, 
@@ -262,7 +272,7 @@
                 console.log("Application submitted successfully with number:", applicationNo);
 
             } catch (error) {
-                console.error("Error adding document: ", error);
+                console.error("Error adding document to Firestore: ", error); // Log specific error for submission
                 showCustomAlert("There was an error submitting your application. Please try again.");
             } finally {
                 setLoading(false);
@@ -281,32 +291,3 @@
         }
 
         modalCloseBtn.addEventListener('click', () => {
-            successModal.classList.add('hidden');
-            successModal.classList.remove('flex');
-            form.reset();
-        });
-
-        // Custom Alert/Message Box Function (replaces alert())
-        function showCustomAlert(message) {
-            const existingAlert = document.getElementById('custom-alert-modal');
-            if (existingAlert) existingAlert.remove();
-
-            const alertModal = document.createElement('div');
-            alertModal.id = 'custom-alert-modal';
-            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
-            alertModal.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-                    <p class="text-gray-600 mb-6">${message}</p>
-                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-                </div>
-            `;
-            document.body.appendChild(alertModal);
-
-            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
-                alertModal.remove();
-            });
-        }
-    </script>
-</body>
-</html>
