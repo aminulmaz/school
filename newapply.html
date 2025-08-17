@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admission Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #a770ef, #cfb4f7, #d8e5ff); /* New, soft gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+        .form-container { 
+            background-color: #ffffff;
+            border-radius: 2rem; /* More prominent rounding */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Deeper shadow */
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            animation: fadeInScale 0.8s ease-out;
+            border: 1px solid #f0f0f0;
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .input-field {
+            border: 1px solid #d1d5db; /* Lighter border */
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #f9fafb;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #6d28d9; /* Deep purple on focus */
+            box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.3);
+            background-color: #ffffff;
+        }
+        .action-btn {
+            background: linear-gradient(45deg, #6d28d9, #9333ea);
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 15px rgba(109, 40, 217, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .action-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4);
+        }
+        .action-btn:disabled {
+            background: #a8a29e;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .modal-backdrop { z-index: 50; } /* Ensure modal is on top */
+
+        /* Styles for the print view */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .form-container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+            /* Hide the buttons and the modal backdrop when printing */
+            .action-btn, #success-modal, #custom-alert-modal {
+                display: none !important;
+            }
+            /* Style form fields to look like plain text */
+            .input-field {
+                border: none;
+                background: transparent;
+                padding: 0;
+                margin-top: -0.25rem; /* Adjust spacing */
+                font-weight: 500;
+            }
+            .input-field:focus {
+                box-shadow: none;
+            }
+            label {
+                font-weight: 600;
+                color: #333;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="form-container">
+            
+            <div class="text-center mb-10">
+                <img src="https://upscaspirantmzr.github.io/result/Logo.png" alt="School Logo" class="mx-auto mb-4 w-24 h-24 rounded-full shadow-md">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Admission Application</h1>
+                <p class="text-gray-500 mt-3">Fill out the details below to submit your application.</p>
+            </div>
+
+            <form id="application-form" class="space-y-8">
+                <!-- Personal Details Section -->
+                <div class="space-y-5">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Personal Details</h2>
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="fullName" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                        <input type="date" id="dob" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="email" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" id="phone" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
+                        <textarea id="address" rows="3" class="input-field" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Academic Details Section -->
+                <div class="space-y-5 pt-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Academic Details</h2>
+                    <div>
+                        <label for="lastPassedExam" class="block text-sm font-medium text-gray-700 mb-1">Last Passed Examination</label>
+                        <input type="text" id="lastPassedExam" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="percentageCgpa" class="block text-sm font-medium text-gray-700 mb-1">Percentage/CGPA</label>
+                        <input type="text" id="percentageCgpa" class="input-field" required>
+                    </div>
+                </div>
+
+                <!-- Parent Details Section -->
+                <div class="space-y-5 pt-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Parent/Guardian Details</h2>
+                    <div>
+                        <label for="parentName" class="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Full Name</label>
+                        <input type="text" id="parentName" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="parentPhone" class="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Phone Number</label>
+                        <input type="tel" id="parentPhone" class="input-field" required>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex flex-col md:flex-row gap-4 pt-8">
+                    <button type="button" id="print-btn" class="w-full md:w-1/2 action-btn bg-purple-500 hover:bg-purple-600 flex items-center justify-center">
+                        <span id="print-button-text">Print Application</span>
+                        <svg id="print-button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                    <button type="submit" id="submit-btn" class="w-full md:w-1/2 action-btn flex items-center justify-center">
+                        <span id="button-text">Submit Application</span>
+                        <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
+        <div class="bg-white p-8 md:p-10 rounded-2xl shadow-xl max-w-lg w-full text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Application Submitted!</h3>
+            <p class="text-gray-600 mb-6">Your application has been successfully submitted. Please note your application number for future reference.</p>
+            <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                <p class="text-sm text-gray-500">Your Application Number:</p>
+                <p id="application-number" class="text-xl font-bold text-gray-800 mt-1"></p>
+            </div>
+            <button id="modal-close-btn" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Message Box -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
+            <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+            <button id="custom-alert-ok-btn" class="bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-purple-700 transition-colors">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM",
+            authDomain: "schooladmsn.firebaseapp.com",
+            projectId: "schooladmsn",
+            storageBucket: "schooladmsn.firebasestorage.app",
+            messagingSenderId: "355479237462",
+            appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
+            measurementId: "G-LJW1ZQTGSV"
+        };
+        // --- END OF FIREBASE CONFIGURATION ---
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- AUTHENTICATION ---
+        async function authenticate() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+            }
+        }
+        
+        authenticate();
+
+        // --- FORM AND BUTTONS ---
+        const form = document.getElementById('application-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const printBtn = document.getElementById('print-btn');
+        const buttonText = document.getElementById('button-text');
+        const buttonSpinner = document.getElementById('button-spinner');
+        const printButtonText = document.getElementById('print-button-text');
+        const printButtonSpinner = document.getElementById('print-button-spinner');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const successModal = document.getElementById('success-modal');
+
+        // Custom Alert elements
+        const customAlertModal = document.getElementById('custom-alert-modal');
+        const customAlertMessage = document.getElementById('custom-alert-message');
+        const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
+
+        // Function to show custom alert
+        function showCustomAlert(message) {
+            customAlertMessage.textContent = message;
+            customAlertModal.classList.remove('hidden');
+            customAlertModal.classList.add('flex');
+        }
+
+        // Event listener for custom alert OK button
+        customAlertOkBtn.addEventListener('click', () => {
+            customAlertModal.classList.add('hidden');
+            customAlertModal.classList.remove('flex');
+        });
+
+        // Function to set loading state on button
+        function setLoading(isLoading, buttonType = 'submit') {
+            let btn, text, spinner;
+            if (buttonType === 'submit') {
+                btn = submitBtn;
+                text = buttonText;
+                spinner = buttonSpinner;
+            } else if (buttonType === 'print') {
+                btn = printBtn;
+                text = printButtonText;
+                spinner = printButtonSpinner;
+            } else {
+                return;
+            }
+            
+            btn.disabled = isLoading;
+            if (isLoading) {
+                text.classList.add('hidden');
+                spinner.classList.remove('hidden');
+            } else {
+                text.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // --- SUBMIT APPLICATION ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading(true, 'submit');
+
+            // Get form data
+            const fullName = document.getElementById('fullName').value;
+            const dob = document.getElementById('dob').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const lastPassedExam = document.getElementById('lastPassedExam').value;
+            const percentageCgpa = document.getElementById('percentageCgpa').value;
+            const parentName = document.getElementById('parentName').value;
+            const parentPhone = document.getElementById('parentPhone').value;
+
+            try {
+                // Generate a unique application number based on timestamp and a random number
+                const applicationNo = `APP-${Date.now()}-${Math.floor(Math.random() * 900) + 100}`;
+                const userId = auth.currentUser?.uid || 'anonymous';
+                
+                const applicationData = {
+                    fullName,
+                    dob,
+                    email,
+                    phone,
+                    address,
+                    lastPassedExam,
+                    percentageCgpa,
+                    parentName,
+                    parentPhone,
+                    applicationNo,
+                    status: "Submitted",
+                    submittedAt: serverTimestamp(),
+                    userId: userId
+                };
+
+                // Add a new document to the "applications" collection
+                await addDoc(collection(db, "applications"), applicationData);
+                
+                // Show success message and clear the form
+                document.getElementById('application-number').textContent = applicationNo;
+                successModal.classList.remove('hidden');
+                successModal.classList.add('flex');
+                
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showCustomAlert("There was an error submitting your application. Please try again.");
+            } finally {
+                setLoading(false, 'submit');
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+            successModal.classList.remove('flex');
+            form.reset(); // Reset the form after successful submission
+        });
+
+        // --- PRINT APPLICATION FUNCTIONALITY ---
+        printBtn.addEventListener('click', () => {
+            if (!form.checkValidity()) {
+                showCustomAlert("Please fill in all the required fields before printing.");
+                return;
+            }
+            // Use native browser print function
+            window.print();
+        });
+    </script>
+</body>
+</html>
