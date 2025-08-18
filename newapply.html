@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MZR Admission Apply Form</title>
+    <title>Rabdan Admission Apply Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Include the html2pdf.js library -->
@@ -19,7 +19,7 @@
             margin: 0;
             padding: 2rem 1rem;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden; /* Prevents horizontal overflow on smaller screens */
         }
         .background-image {
             position: absolute;
@@ -27,7 +27,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('https://placehold.co/1920x1080/cfb4f7/ffffff?text=Background+Image'); /* A placeholder image for the background */
+            background-image: url('https://placehold.co/1920x1080/cfb4f7/ffffff?text=Background+Image');
             background-size: cover;
             background-position: center;
             filter: blur(8px);
@@ -37,7 +37,7 @@
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            padding: 2rem 2.5rem;
+            padding: 2rem 1.5rem; /* Adjusted padding for mobile */
             width: 100%;
             max-width: 600px;
             animation: fadeInScale 0.8s ease-out;
@@ -76,6 +76,12 @@
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
+            font-size: 0.875rem; /* Smaller font for mobile buttons */
+        }
+        @media (min-width: 768px) {
+            .action-btn {
+                font-size: 1rem;
+            }
         }
         .action-btn:hover {
             opacity: 0.95;
@@ -90,17 +96,53 @@
         }
         .modal-backdrop { z-index: 50; }
 
-        /* Styles for the admit card to be printed/PDF'd */
-        #admit-card-template {
-            display: none; /* Hide the template by default */
+        /* Styles for the PDF templates */
+        #admit-card-template, #application-pdf-template {
+            display: none;
         }
-        #admit-card-container {
-            width: 8.5in; /* Standard letter width for PDF */
-            height: 11in; /* Standard letter height for PDF */
-            padding: 1in;
+        .pdf-page-container {
+            width: 8.5in;
+            min-height: 11in;
+            padding: 0.75in;
             box-sizing: border-box;
             background-color: white;
             border: 1px solid #ccc;
+        }
+
+        /* PDF specific styles */
+        .pdf-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .pdf-field-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .pdf-field-value {
+            font-weight: 500;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+        /* Mobile styles for PDF container content */
+        @media (max-width: 767px) {
+            .pdf-flex-container {
+                flex-direction: column;
+            }
+            .pdf-flex-item {
+                border-right: none !important;
+                padding-right: 0 !important;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .pdf-flex-item:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
         }
     </style>
 </head>
@@ -176,13 +218,18 @@
                         </select>
                     </div>
                     <p class="text-xs text-gray-500 mt-2">You can only submit one application per mobile number</p>
-                    <button type="submit" id="submit-btn" class="w-full action-btn">
-                        <span id="button-text">Submit Now</span>
-                        <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </button>
+                    <div class="flex flex-col md:flex-row gap-4 pt-4">
+                        <button type="button" id="print-application-btn" class="w-full md:w-1/2 bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors">
+                            Print Application
+                        </button>
+                        <button type="submit" id="submit-btn" class="w-full md:w-1/2 action-btn">
+                            <span id="button-text">Submit Now</span>
+                            <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </form>
             </div>
 
@@ -208,12 +255,12 @@
         </div>
     </div>
 
-    <!-- Hidden template for generating PDF -->
-    <div id="admit-card-template">
-        <!-- This is a separate, hidden container for the PDF content. -->
-        <div id="admit-card-container">
-            <!-- The content here will be generated by JavaScript. -->
-        </div>
+    <!-- Hidden templates for generating PDFs -->
+    <div id="admit-card-template" style="display: none;">
+        <div id="admit-card-container" class="pdf-page-container"></div>
+    </div>
+    <div id="application-pdf-template" style="display: none;">
+        <div id="application-pdf-container" class="pdf-page-container"></div>
     </div>
 
     <!-- Success Modal -->
@@ -294,6 +341,7 @@
         const admitCardAppNoInput = document.getElementById('admit-card-app-no');
         const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
         const backToFormBtn = document.getElementById('back-to-form-btn');
+        const printApplicationBtn = document.getElementById('print-application-btn');
 
         // Custom Alert elements
         const customAlertModal = document.getElementById('custom-alert-modal');
@@ -389,7 +437,77 @@
             }
         });
 
-        document.getElementById('download-admit-card-btn').addEventListener('click', async () => {
+        // --- GENERATE AND PRINT APPLICATION PDF ---
+        printApplicationBtn.addEventListener('click', () => {
+            if (!form.checkValidity()) {
+                showCustomAlert("Please fill in all the required fields before printing.");
+                return;
+            }
+
+            const formData = {
+                applicantsName: document.getElementById('applicantsName').value,
+                dob: document.getElementById('dob').value,
+                mobileNo: document.getElementById('mobileNo').value,
+                classValue: document.getElementById('class').value,
+                fatherName: document.getElementById('fatherName').value,
+                address: document.getElementById('address').value,
+                district: document.getElementById('district').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value,
+                hostelAccomodation: document.getElementById('hostelAccomodation').value,
+            };
+
+            const htmlContent = `
+                <div style="font-family: 'Poppins', sans-serif; padding: 2rem; border: 3px solid #6d28d9; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 1rem;">
+                        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937;">RABDAN ADMISSION APPLICATION</h1>
+                        <p style="color: #6b7280; margin-top: 0.5rem; font-style: italic;">Application submitted on ${new Date().toLocaleDateString()}</p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; md:flex-row; gap: 2rem;">
+                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; md:border-right: 1px solid #e5e7eb; md:padding-right: 2rem;">
+                            <h2 class="pdf-section-title">Personal Details</h2>
+                            <p class="pdf-field-label">Applicant's Name:</p>
+                            <p class="pdf-field-value">${formData.applicantsName}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Date of Birth:</p>
+                            <p class="pdf-field-value">${formData.dob}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Mobile No:</p>
+                            <p class="pdf-field-value">${formData.mobileNo}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Father's Name:</p>
+                            <p class="pdf-field-value">${formData.fatherName || 'N/A'}</p>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h2 class="pdf-section-title">Application Details</h2>
+                            <p class="pdf-field-label">Class Applied For:</p>
+                            <p class="pdf-field-value">${formData.classValue}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Address:</p>
+                            <p class="pdf-field-value">${formData.address || 'N/A'}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">District:</p>
+                            <p class="pdf-field-value">${formData.district || 'N/A'}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">State:</p>
+                            <p class="pdf-field-value">${formData.state || 'N/A'}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Pincode:</p>
+                            <p class="pdf-field-value">${formData.pincode || 'N/A'}</p>
+                            <p class="pdf-field-label" style="margin-top: 1rem;">Hostel Accomodation:</p>
+                            <p class="pdf-field-value">${formData.hostelAccomodation || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const opt = {
+                margin: 0.75,
+                filename: 'Rabdan_Application.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(htmlContent).set(opt).save();
+        });
+
+        // --- ADMIT CARD DOWNLOAD ---
+        downloadAdmitCardBtn.addEventListener('click', async () => {
             const applicationNo = admitCardAppNoInput.value;
             if (!applicationNo) {
                 showCustomAlert("Please enter a valid Application Number.");
@@ -397,7 +515,6 @@
             }
 
             try {
-                // Query Firestore for the application number
                 const applicationsRef = collection(db, "applications");
                 const q = query(applicationsRef, where("applicationNo", "==", applicationNo));
                 const querySnapshot = await getDocs(q);
@@ -409,7 +526,6 @@
 
                 const applicationData = querySnapshot.docs[0].data();
 
-                // Create the HTML content for the Admit Card
                 const admitCardHtml = `
                     <div style="font-family: 'Poppins', sans-serif; padding: 2rem; border: 2px solid #3b82f6; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                         <div style="text-align: center; margin-bottom: 2.5rem; background-color: #e0e7ff; padding: 1.5rem; border-radius: 0.75rem;">
@@ -417,7 +533,7 @@
                             <p style="color: #6b7280; margin-top: 0.5rem;">RABDAN ADMISSION</p>
                             <p style="font-size: 1.25rem; font-weight: 600; color: #4338ca; margin-top: 1rem;">Application No: ${applicationData.applicationNo}</p>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+                        <div style="display: flex; flex-direction: column; md:flex-row; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
                             <div style="flex: 1;">
                                 <p style="color: #4b5563; font-size: 0.875rem; margin-bottom: 0.5rem;">Applicant's Name:</p>
                                 <p style="font-weight: 600; color: #1f2937;">${applicationData.applicantsName}</p>
@@ -426,7 +542,7 @@
                                 <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Date of Birth:</p>
                                 <p style="font-weight: 600; color: #1f2937;">${applicationData.dob}</p>
                             </div>
-                            <div style="width: 150px; height: 150px; border: 1px solid #ccc; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: #999; border-radius: 0.5rem;">
+                            <div style="width: 150px; height: 150px; border: 1px solid #ccc; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: #999; border-radius: 0.5rem; margin-top: 1rem; md:margin-top: 0;">
                                 Photo Here
                             </div>
                         </div>
@@ -443,7 +559,6 @@
                     </div>
                 `;
 
-                // Options for html2pdf
                 const opt = {
                     margin: 0.5,
                     filename: `Admit_Card_${applicationData.applicationNo}.pdf`,
@@ -452,7 +567,6 @@
                     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
                 };
 
-                // Use html2pdf to generate the PDF
                 html2pdf().from(admitCardHtml).set(opt).save();
 
             } catch (error) {
@@ -462,29 +576,25 @@
         });
 
         // Logic to switch sections
-        document.getElementById('back-to-form-btn').addEventListener('click', () => {
+        backToFormBtn.addEventListener('click', () => {
             formSection.classList.remove('hidden');
             admitCardDownloadSection.classList.add('hidden');
             backToFormBtn.classList.add('hidden');
         });
 
-        // The 'Submit Now' button is part of the form and its logic is in the form's submit event.
-        // We will repurpose a button click to switch views.
-        // Let's add a button to the form to switch to download mode.
-        // This button will be styled as 'Download Admit Card (If Already Registered)' as in the image.
-        const downloadButton = document.createElement('button');
-        downloadButton.textContent = 'Download Admit Card (If Already Registered)';
-        downloadButton.id = 'download-view-btn';
-        downloadButton.className = 'w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors';
-        downloadButton.type = 'button';
-        form.after(downloadButton);
+        // Add a button to switch to download view
+        const downloadViewBtn = document.createElement('button');
+        downloadViewBtn.textContent = 'Download Admit Card (If Already Registered)';
+        downloadViewBtn.id = 'download-view-btn';
+        downloadViewBtn.className = 'w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors';
+        downloadViewBtn.type = 'button';
+        form.after(downloadViewBtn);
 
-        downloadButton.addEventListener('click', () => {
+        downloadViewBtn.addEventListener('click', () => {
             formSection.classList.add('hidden');
             admitCardDownloadSection.classList.remove('hidden');
             backToFormBtn.classList.remove('hidden');
         });
-
     </script>
 </body>
 </html>
