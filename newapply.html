@@ -3,31 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Admission Application</title>
+    <title>MZR Admission Apply Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Include the html2pdf.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #a770ef, #cfb4f7, #d8e5ff);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
         }
-        .form-container { 
-            background-color: #ffffff;
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://placehold.co/1920x1080/cfb4f7/ffffff?text=Background+Image'); /* A placeholder image for the background */
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px);
+            z-index: -1;
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            padding: 3rem 2.5rem;
+            padding: 2rem 2.5rem;
             width: 100%;
-            max-width: 700px;
+            max-width: 600px;
             animation: fadeInScale 0.8s ease-out;
             border: 1px solid #f0f0f0;
+            position: relative;
+            z-index: 10;
         }
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.95); }
@@ -35,8 +51,8 @@
         }
         .input-field {
             border: 1px solid #d1d5db;
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
             width: 100%;
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -74,108 +90,129 @@
         }
         .modal-backdrop { z-index: 50; }
 
-        /* Styles for the content to be printed/PDF'd */
-        #application-form-content {
-            padding: 2rem;
-            background-color: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 2rem; /* Add margin to separate from buttons */
+        /* Styles for the admit card to be printed/PDF'd */
+        #admit-card-template {
+            display: none; /* Hide the template by default */
         }
-        
-        /* Utility for displaying field values in PDF */
-        .pdf-value {
-            font-weight: 600;
-            color: #333;
-            display: block;
-            margin-top: 0.25rem;
+        #admit-card-container {
+            width: 8.5in; /* Standard letter width for PDF */
+            height: 11in; /* Standard letter height for PDF */
+            padding: 1in;
+            box-sizing: border-box;
+            background-color: white;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
 
+    <div class="background-image"></div>
+
     <div class="container mx-auto px-4 py-12">
         <div class="form-container">
-            <!-- This is the container for the content that will be converted to PDF -->
-            <div id="application-form-content">
+            <!-- Form Section -->
+            <div id="form-section">
                 <div class="text-center mb-10">
-                    <img src="https://upscaspirantmzr.github.io/result/Logo.png" alt="School Logo" class="mx-auto mb-4 w-24 h-24 rounded-full shadow-md">
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Admission Application</h1>
-                    <p class="text-gray-500 mt-3">Please fill out the details below accurately.</p>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">RABDAN ADMISSION APPLY FORM</h1>
+                    <p class="text-gray-500 mt-1">Class I to IX and XI</p>
+                    <p class="text-gray-500 mt-4">Fill the details carefully</p>
                 </div>
 
-                <form id="application-form" class="space-y-8">
-                    <!-- Personal Details Section -->
-                    <div class="space-y-5">
-                        <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Personal Details</h2>
-                        <div>
-                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                            <input type="text" id="fullName" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                            <input type="date" id="dob" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                            <input type="email" id="email" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                            <input type="tel" id="phone" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                            <textarea id="address" rows="3" class="input-field" required></textarea>
-                        </div>
+                <form id="application-form" class="space-y-6">
+                    <div>
+                        <label for="applicantsName" class="block text-sm font-medium text-gray-700 mb-1">Applicants Name*</label>
+                        <input type="text" id="applicantsName" class="input-field" placeholder="Applicants Name" required>
                     </div>
-
-                    <!-- Academic Details Section -->
-                    <div class="space-y-5 pt-6">
-                        <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Academic Details</h2>
-                        <div>
-                            <label for="lastPassedExam" class="block text-sm font-medium text-gray-700 mb-1">Last Passed Examination</label>
-                            <input type="text" id="lastPassedExam" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="percentageCgpa" class="block text-sm font-medium text-gray-700 mb-1">Percentage/CGPA</label>
-                            <input type="text" id="percentageCgpa" class="input-field" required>
-                        </div>
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">DOB*</label>
+                        <input type="date" id="dob" class="input-field" required>
                     </div>
-
-                    <!-- Parent Details Section -->
-                    <div class="space-y-5 pt-6">
-                        <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Parent/Guardian Details</h2>
-                        <div>
-                            <label for="parentName" class="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Full Name</label>
-                            <input type="text" id="parentName" class="input-field" required>
-                        </div>
-                        <div>
-                            <label for="parentPhone" class="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Phone Number</label>
-                            <input type="tel" id="parentPhone" class="input-field" required>
-                        </div>
+                    <div>
+                        <label for="mobileNo" class="block text-sm font-medium text-gray-700 mb-1">Mobile No (10 digit)* <span class="text-xs text-gray-400">Only 1 registration per mobile</span></label>
+                        <input type="tel" id="mobileNo" class="input-field" placeholder="Applicant's Mobile No" required pattern="[0-9]{10}">
                     </div>
+                    <div>
+                        <label for="class" class="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                        <select id="class" class="input-field" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="I">Class I</option>
+                            <option value="II">Class II</option>
+                            <option value="III">Class III</option>
+                            <option value="IV">Class IV</option>
+                            <option value="V">Class V</option>
+                            <option value="VI">Class VI</option>
+                            <option value="VII">Class VII</option>
+                            <option value="VIII">Class VIII</option>
+                            <option value="IX">Class IX</option>
+                            <option value="XI">Class XI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fatherName" class="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+                        <input type="text" id="fatherName" class="input-field" placeholder="Father's Name">
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <textarea id="address" rows="2" class="input-field" placeholder="Address"></textarea>
+                    </div>
+                    <div>
+                        <label for="district" class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                        <input type="text" id="district" class="input-field" placeholder="District">
+                    </div>
+                    <div>
+                        <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <input type="text" id="state" class="input-field" placeholder="State">
+                    </div>
+                    <div>
+                        <label for="pincode" class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                        <input type="text" id="pincode" class="input-field" placeholder="Pincode">
+                    </div>
+                    <div>
+                        <label for="hostelAccomodation" class="block text-sm font-medium text-gray-700 mb-1">Hostel Accomodation?</label>
+                        <select id="hostelAccomodation" class="input-field">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">You can only submit one application per mobile number</p>
+                    <button type="submit" id="submit-btn" class="w-full action-btn">
+                        <span id="button-text">Submit Now</span>
+                        <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
                 </form>
             </div>
 
-            <!-- Buttons are outside the PDF content container -->
-            <div class="flex flex-col md:flex-row gap-4 pt-8">
-                <button type="button" id="print-btn" class="w-full md:w-1/2 action-btn bg-purple-500 hover:bg-purple-600 flex items-center justify-center">
-                    <span id="print-button-text">Generate PDF</span>
-                    <svg id="print-button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </button>
-                <button type="submit" id="submit-btn" class="w-full md:w-1/2 action-btn flex items-center justify-center">
-                    <span id="button-text">Submit Application</span>
-                    <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+            <!-- Admit Card Download Section -->
+            <div id="admit-card-download-section" class="hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Download Admit Card</h2>
+                    <p class="text-gray-500 mt-2">Enter your Application Number to download.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="admit-card-app-no" class="block text-sm font-medium text-gray-700 mb-1">Application Number</label>
+                    <input type="text" id="admit-card-app-no" class="input-field" placeholder="Enter Application Number" required>
+                </div>
+                <button id="download-admit-card-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                    Download Admit Card
                 </button>
             </div>
+
+            <!-- Back to Form Button -->
+            <button id="back-to-form-btn" class="w-full mt-4 bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg hover:bg-gray-400 transition-colors hidden">
+                Back to Form
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden template for generating PDF -->
+    <div id="admit-card-template">
+        <!-- This is a separate, hidden container for the PDF content. -->
+        <div id="admit-card-container">
+            <!-- The content here will be generated by JavaScript. -->
         </div>
     </div>
 
@@ -206,7 +243,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
@@ -245,17 +282,18 @@
         
         authenticate();
 
-        // --- FORM AND BUTTONS ---
+        // --- DOM ELEMENTS ---
         const form = document.getElementById('application-form');
         const submitBtn = document.getElementById('submit-btn');
-        const printBtn = document.getElementById('print-btn');
         const buttonText = document.getElementById('button-text');
         const buttonSpinner = document.getElementById('button-spinner');
-        const printButtonText = document.getElementById('print-button-text');
-        const printButtonSpinner = document.getElementById('print-button-spinner');
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const successModal = document.getElementById('success-modal');
-        const applicationFormContent = document.getElementById('application-form-content');
+        const formSection = document.getElementById('form-section');
+        const admitCardDownloadSection = document.getElementById('admit-card-download-section');
+        const admitCardAppNoInput = document.getElementById('admit-card-app-no');
+        const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
+        const backToFormBtn = document.getElementById('back-to-form-btn');
 
         // Custom Alert elements
         const customAlertModal = document.getElementById('custom-alert-modal');
@@ -276,63 +314,51 @@
         });
 
         // Function to set loading state on button
-        function setLoading(isLoading, buttonType = 'submit') {
-            let btn, text, spinner;
-            if (buttonType === 'submit') {
-                btn = submitBtn;
-                text = buttonText;
-                spinner = buttonSpinner;
-            } else if (buttonType === 'print') {
-                btn = printBtn;
-                text = printButtonText;
-                spinner = printButtonSpinner;
-            } else {
-                return;
-            }
-            
-            btn.disabled = isLoading;
+        function setLoading(isLoading) {
+            submitBtn.disabled = isLoading;
             if (isLoading) {
-                text.classList.add('hidden');
-                spinner.classList.remove('hidden');
+                buttonText.classList.add('hidden');
+                buttonSpinner.classList.remove('hidden');
             } else {
-                text.classList.remove('hidden');
-                spinner.classList.add('hidden');
+                buttonText.classList.remove('hidden');
+                buttonSpinner.classList.add('hidden');
             }
         }
 
-        // --- SUBMIT APPLICATION ---
+        // --- FORM SUBMISSION ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            setLoading(true, 'submit');
+            setLoading(true);
 
             // Get form data
-            const fullName = document.getElementById('fullName').value;
+            const applicantsName = document.getElementById('applicantsName').value;
             const dob = document.getElementById('dob').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
+            const mobileNo = document.getElementById('mobileNo').value;
+            const classValue = document.getElementById('class').value;
+            const fatherName = document.getElementById('fatherName').value;
             const address = document.getElementById('address').value;
-            const lastPassedExam = document.getElementById('lastPassedExam').value;
-            const percentageCgpa = document.getElementById('percentageCgpa').value;
-            const parentName = document.getElementById('parentName').value;
-            const parentPhone = document.getElementById('parentPhone').value;
+            const district = document.getElementById('district').value;
+            const state = document.getElementById('state').value;
+            const pincode = document.getElementById('pincode').value;
+            const hostelAccomodation = document.getElementById('hostelAccomodation').value;
 
             try {
                 // Generate a unique application number based on timestamp and a random number
-                const applicationNo = `APP-${Date.now()}-${Math.floor(Math.random() * 900) + 100}`;
+                const applicationNo = `RAB-${Date.now()}`;
                 const userId = auth.currentUser?.uid || 'anonymous';
                 
                 const applicationData = {
-                    fullName,
+                    applicantsName,
                     dob,
-                    email,
-                    phone,
+                    mobileNo,
+                    classValue,
+                    fatherName,
                     address,
-                    lastPassedExam,
-                    percentageCgpa,
-                    parentName,
-                    parentPhone,
+                    district,
+                    state,
+                    pincode,
+                    hostelAccomodation,
                     applicationNo,
-                    status: "Submitted",
                     submittedAt: serverTimestamp(),
                     userId: userId
                 };
@@ -349,69 +375,116 @@
                 console.error("Error adding document: ", error);
                 showCustomAlert("There was an error submitting your application. Please try again.");
             } finally {
-                setLoading(false, 'submit');
+                setLoading(false);
             }
         });
 
-        modalCloseBtn.addEventListener('click', () => {
-            successModal.classList.add('hidden');
-            successModal.classList.remove('flex');
-            form.reset(); // Reset the form after successful submission
+        // Toggle between Form and Admit Card Download sections
+        submitBtn.addEventListener('click', () => {
+            if (form.checkValidity()) {
+                // If form is valid, the form submission will handle the rest.
+                // We don't need to change sections here.
+            } else {
+                showCustomAlert("Please fill in all the required fields.");
+            }
         });
 
-        // --- GENERATE PDF FUNCTIONALITY ---
-        printBtn.addEventListener('click', () => {
-            // First, check if the form is valid.
-            if (!form.checkValidity()) {
-                showCustomAlert("Please fill in all the required fields before generating the PDF.");
+        document.getElementById('download-admit-card-btn').addEventListener('click', async () => {
+            const applicationNo = admitCardAppNoInput.value;
+            if (!applicationNo) {
+                showCustomAlert("Please enter a valid Application Number.");
                 return;
             }
-            
-            // Collect the data from the form
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                dob: document.getElementById('dob').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                lastPassedExam: document.getElementById('lastPassedExam').value,
-                percentageCgpa: document.getElementById('percentageCgpa').value,
-                parentName: document.getElementById('parentName').value,
-                parentPhone: document.getElementById('parentPhone').value,
-            };
 
-            // Create a temporary clone of the content to be printed
-            const printContent = document.createElement('div');
-            printContent.innerHTML = applicationFormContent.innerHTML;
+            try {
+                // Query Firestore for the application number
+                const applicationsRef = collection(db, "applications");
+                const q = query(applicationsRef, where("applicationNo", "==", applicationNo));
+                const querySnapshot = await getDocs(q);
 
-            // Remove the form inputs and replace them with the filled-in values
-            const inputs = printContent.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                const parentDiv = input.closest('div');
-                const label = parentDiv.querySelector('label');
-                const value = formData[input.id];
-                
-                // Create a new element to display the value
-                const valueElement = document.createElement('span');
-                valueElement.className = 'pdf-value';
-                valueElement.textContent = value;
-                
-                // Replace the input with the new value element
-                parentDiv.replaceChild(valueElement, input);
-            });
-            
-            // Options for html2pdf
-            const opt = {
-                margin: 0.75, // Add a decent margin
-                filename: 'Admission_Application.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+                if (querySnapshot.empty) {
+                    showCustomAlert("Application not found. Please check the number and try again.");
+                    return;
+                }
 
-            // Use html2pdf to generate the PDF from the modified content
-            html2pdf().from(printContent).set(opt).save();
+                const applicationData = querySnapshot.docs[0].data();
+
+                // Create the HTML content for the Admit Card
+                const admitCardHtml = `
+                    <div style="font-family: 'Poppins', sans-serif; padding: 2rem; border: 2px solid #3b82f6; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                        <div style="text-align: center; margin-bottom: 2.5rem; background-color: #e0e7ff; padding: 1.5rem; border-radius: 0.75rem;">
+                            <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937;">Admit Card</h1>
+                            <p style="color: #6b7280; margin-top: 0.5rem;">RABDAN ADMISSION</p>
+                            <p style="font-size: 1.25rem; font-weight: 600; color: #4338ca; margin-top: 1rem;">Application No: ${applicationData.applicationNo}</p>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                <p style="color: #4b5563; font-size: 0.875rem; margin-bottom: 0.5rem;">Applicant's Name:</p>
+                                <p style="font-weight: 600; color: #1f2937;">${applicationData.applicantsName}</p>
+                                <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Father's Name:</p>
+                                <p style="font-weight: 600; color: #1f2937;">${applicationData.fatherName || 'N/A'}</p>
+                                <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Date of Birth:</p>
+                                <p style="font-weight: 600; color: #1f2937;">${applicationData.dob}</p>
+                            </div>
+                            <div style="width: 150px; height: 150px; border: 1px solid #ccc; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: #999; border-radius: 0.5rem;">
+                                Photo Here
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <p style="color: #4b5563; font-size: 0.875rem; margin-bottom: 0.5rem;">Mobile No:</p>
+                            <p style="font-weight: 600; color: #1f2937;">${applicationData.mobileNo}</p>
+                            <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Class Applied For:</p>
+                            <p style="font-weight: 600; color: #1f2937;">${applicationData.classValue}</p>
+                            <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Address:</p>
+                            <p style="font-weight: 600; color: #1f2937;">${applicationData.address || 'N/A'}</p>
+                            <p style="color: #4b5563; font-size: 0.875rem; margin-top: 1rem; margin-bottom: 0.5rem;">Hostel Accomodation:</p>
+                            <p style="font-weight: 600; color: #1f2937;">${applicationData.hostelAccomodation || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Options for html2pdf
+                const opt = {
+                    margin: 0.5,
+                    filename: `Admit_Card_${applicationData.applicationNo}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                // Use html2pdf to generate the PDF
+                html2pdf().from(admitCardHtml).set(opt).save();
+
+            } catch (error) {
+                console.error("Error fetching application:", error);
+                showCustomAlert("Error fetching application. Please try again.");
+            }
         });
+
+        // Logic to switch sections
+        document.getElementById('back-to-form-btn').addEventListener('click', () => {
+            formSection.classList.remove('hidden');
+            admitCardDownloadSection.classList.add('hidden');
+            backToFormBtn.classList.add('hidden');
+        });
+
+        // The 'Submit Now' button is part of the form and its logic is in the form's submit event.
+        // We will repurpose a button click to switch views.
+        // Let's add a button to the form to switch to download mode.
+        // This button will be styled as 'Download Admit Card (If Already Registered)' as in the image.
+        const downloadButton = document.createElement('button');
+        downloadButton.textContent = 'Download Admit Card (If Already Registered)';
+        downloadButton.id = 'download-view-btn';
+        downloadButton.className = 'w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors';
+        downloadButton.type = 'button';
+        form.after(downloadButton);
+
+        downloadButton.addEventListener('click', () => {
+            formSection.classList.add('hidden');
+            admitCardDownloadSection.classList.remove('hidden');
+            backToFormBtn.classList.remove('hidden');
+        });
+
     </script>
 </body>
 </html>
