@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rabdan Admission Apply Form</title>
+    <title>MZR Academy Admission Apply Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Include the html2pdf.js library -->
@@ -19,7 +19,7 @@
             margin: 0;
             padding: 2rem 1rem;
             position: relative;
-            overflow-x: hidden; /* Prevents horizontal overflow on smaller screens */
+            overflow-x: hidden;
         }
         .background-image {
             position: absolute;
@@ -37,7 +37,7 @@
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            padding: 2rem 1.5rem; /* Adjusted padding for mobile */
+            padding: 2rem 1.5rem;
             width: 100%;
             max-width: 600px;
             animation: fadeInScale 0.8s ease-out;
@@ -76,7 +76,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            font-size: 0.875rem; /* Smaller font for mobile buttons */
+            font-size: 0.875rem;
         }
         @media (min-width: 768px) {
             .action-btn {
@@ -108,7 +108,6 @@
             background-color: white;
             border: 1px solid #ccc;
         }
-
         /* PDF specific styles */
         .pdf-section-title {
             font-size: 1.25rem;
@@ -127,6 +126,7 @@
             font-weight: 500;
             color: #1f2937;
             font-size: 1rem;
+            margin-bottom: 1rem; /* Added margin for better spacing */
         }
         /* Mobile styles for PDF container content */
         @media (max-width: 767px) {
@@ -164,6 +164,10 @@
                     <div>
                         <label for="applicantsName" class="block text-sm font-medium text-gray-700 mb-1">Applicants Name*</label>
                         <input type="text" id="applicantsName" class="input-field" placeholder="Applicants Name" required>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                        <input type="email" id="email" class="input-field" placeholder="applicant@example.com" required>
                     </div>
                     <div>
                         <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">DOB*</label>
@@ -260,7 +264,45 @@
         <div id="admit-card-container" class="pdf-page-container"></div>
     </div>
     <div id="application-pdf-template" style="display: none;">
-        <div id="application-pdf-container" class="pdf-page-container"></div>
+        <!-- This is the HTML container we will populate and then generate a PDF from -->
+        <div id="application-pdf-content" style="padding: 2rem; border: 3px solid #6d28d9; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 1rem;">
+                <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937;">RABDAN ADMISSION APPLICATION</h1>
+                <p style="color: #6b7280; margin-top: 0.5rem; font-style: italic;">Application submitted on <span id="pdf-date"></span></p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Personal Details Section -->
+                <div style="padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;">
+                    <h2 class="pdf-section-title">Personal Details</h2>
+                    <p class="pdf-field-label">Applicant's Name:</p>
+                    <p class="pdf-field-value" id="pdf-applicantsName"></p>
+                    <p class="pdf-field-label">Email:</p>
+                    <p class="pdf-field-value" id="pdf-email"></p>
+                    <p class="pdf-field-label">Date of Birth:</p>
+                    <p class="pdf-field-value" id="pdf-dob"></p>
+                    <p class="pdf-field-label">Mobile No:</p>
+                    <p class="pdf-field-value" id="pdf-mobileNo"></p>
+                    <p class="pdf-field-label">Father's Name:</p>
+                    <p class="pdf-field-value" id="pdf-fatherName"></p>
+                </div>
+                <!-- Application Details Section -->
+                <div style="flex-grow: 1;">
+                    <h2 class="pdf-section-title">Application Details</h2>
+                    <p class="pdf-field-label">Class Applied For:</p>
+                    <p class="pdf-field-value" id="pdf-class"></p>
+                    <p class="pdf-field-label">Address:</p>
+                    <p class="pdf-field-value" id="pdf-address"></p>
+                    <p class="pdf-field-label">District:</p>
+                    <p class="pdf-field-value" id="pdf-district"></p>
+                    <p class="pdf-field-label">State:</p>
+                    <p class="pdf-field-value" id="pdf-state"></p>
+                    <p class="pdf-field-label">Pincode:</p>
+                    <p class="pdf-field-value" id="pdf-pincode"></p>
+                    <p class="pdf-field-label">Hostel Accomodation:</p>
+                    <p class="pdf-field-value" id="pdf-hostelAccomodation"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Success Modal -->
@@ -342,6 +384,7 @@
         const downloadAdmitCardBtn = document.getElementById('download-admit-card-btn');
         const backToFormBtn = document.getElementById('back-to-form-btn');
         const printApplicationBtn = document.getElementById('print-application-btn');
+        const applicationPdfContent = document.getElementById('application-pdf-content');
 
         // Custom Alert elements
         const customAlertModal = document.getElementById('custom-alert-modal');
@@ -380,6 +423,7 @@
 
             // Get form data
             const applicantsName = document.getElementById('applicantsName').value;
+            const email = document.getElementById('email').value;
             const dob = document.getElementById('dob').value;
             const mobileNo = document.getElementById('mobileNo').value;
             const classValue = document.getElementById('class').value;
@@ -397,6 +441,7 @@
                 
                 const applicationData = {
                     applicantsName,
+                    email,
                     dob,
                     mobileNo,
                     classValue,
@@ -444,57 +489,21 @@
                 return;
             }
 
-            const formData = {
-                applicantsName: document.getElementById('applicantsName').value,
-                dob: document.getElementById('dob').value,
-                mobileNo: document.getElementById('mobileNo').value,
-                classValue: document.getElementById('class').value,
-                fatherName: document.getElementById('fatherName').value,
-                address: document.getElementById('address').value,
-                district: document.getElementById('district').value,
-                state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value,
-                hostelAccomodation: document.getElementById('hostelAccomodation').value,
-            };
-
-            const htmlContent = `
-                <div style="font-family: 'Poppins', sans-serif; padding: 2rem; border: 3px solid #6d28d9; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: #ffffff;">
-                    <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #e0e7ff; padding-bottom: 1rem;">
-                        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937;">RABDAN ADMISSION APPLICATION</h1>
-                        <p style="color: #6b7280; margin-top: 0.5rem; font-style: italic;">Application submitted on ${new Date().toLocaleDateString()}</p>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; md:flex-row; gap: 2rem;">
-                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; md:border-right: 1px solid #e5e7eb; md:padding-right: 2rem;">
-                            <h2 class="pdf-section-title">Personal Details</h2>
-                            <p class="pdf-field-label">Applicant's Name:</p>
-                            <p class="pdf-field-value">${formData.applicantsName}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Date of Birth:</p>
-                            <p class="pdf-field-value">${formData.dob}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Mobile No:</p>
-                            <p class="pdf-field-value">${formData.mobileNo}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Father's Name:</p>
-                            <p class="pdf-field-value">${formData.fatherName || 'N/A'}</p>
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <h2 class="pdf-section-title">Application Details</h2>
-                            <p class="pdf-field-label">Class Applied For:</p>
-                            <p class="pdf-field-value">${formData.classValue}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Address:</p>
-                            <p class="pdf-field-value">${formData.address || 'N/A'}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">District:</p>
-                            <p class="pdf-field-value">${formData.district || 'N/A'}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">State:</p>
-                            <p class="pdf-field-value">${formData.state || 'N/A'}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Pincode:</p>
-                            <p class="pdf-field-value">${formData.pincode || 'N/A'}</p>
-                            <p class="pdf-field-label" style="margin-top: 1rem;">Hostel Accomodation:</p>
-                            <p class="pdf-field-value">${formData.hostelAccomodation || 'N/A'}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Populate the hidden PDF template with current form data
+            document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('pdf-applicantsName').textContent = document.getElementById('applicantsName').value;
+            document.getElementById('pdf-email').textContent = document.getElementById('email').value;
+            document.getElementById('pdf-dob').textContent = document.getElementById('dob').value;
+            document.getElementById('pdf-mobileNo').textContent = document.getElementById('mobileNo').value;
+            document.getElementById('pdf-fatherName').textContent = document.getElementById('fatherName').value || 'N/A';
+            document.getElementById('pdf-class').textContent = document.getElementById('class').value;
+            document.getElementById('pdf-address').textContent = document.getElementById('address').value || 'N/A';
+            document.getElementById('pdf-district').textContent = document.getElementById('district').value || 'N/A';
+            document.getElementById('pdf-state').textContent = document.getElementById('state').value || 'N/A';
+            document.getElementById('pdf-pincode').textContent = document.getElementById('pincode').value || 'N/A';
+            document.getElementById('pdf-hostelAccomodation').textContent = document.getElementById('hostelAccomodation').value || 'N/A';
             
+            // Define html2pdf options
             const opt = {
                 margin: 0.75,
                 filename: 'Rabdan_Application.pdf',
@@ -503,7 +512,13 @@
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().from(htmlContent).set(opt).save();
+            // Generate PDF from the populated hidden element
+            try {
+                html2pdf().from(applicationPdfContent).set(opt).save();
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                showCustomAlert("An error occurred while generating the PDF. Please try again.");
+            }
         });
 
         // --- ADMIT CARD DOWNLOAD ---
