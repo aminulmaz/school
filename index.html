@@ -1,197 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apex International School | Welcome</title>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Portal - Assam University, Silchar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
-    
-    <!-- Load Firebase Libraries First -->
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100">
-    <div id="notification-container" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-6 border">
-            <div id="auth-container">
-                <!-- Auth Forms will be rendered here -->
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <div class="text-center">
+             <img src="media/auslogo.png" alt="University Logo" class="mx-auto h-24 w-24" onerror="this.onerror=null;this.src='https://placehold.co/96x96/1E3A8A/FFFFFF?text=AU';">
+            <h1 class="text-4xl font-bold text-blue-900 mt-4">Department of Law</h1>
+            <p class="text-xl text-gray-600">Assam University, Silchar</p>
+            <h2 class="text-3xl font-semibold text-gray-800 mt-10">Admission Portal 2025</h2>
+        </div>
+
+        <div class="mt-12 p-8 bg-white rounded-xl shadow-2xl w-full max-w-sm">
+             <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium text-center text-gray-700">For Students</h3>
+                    <a href="portal-register.html" class="mt-2 w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Register / Login
+                    </a>
+                </div>
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-center text-gray-700">For Administration</h3>
+                     <a href="admin-login.html" class="mt-2 w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Admin Login
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Load Firebase Config -->
-    <script src="./firebase-config.js"></script>
-
-    <!-- Load Firebase App Logic -->
-    <script>
-        const { initializeApp } = firebase;
-        const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } = firebase.auth;
-        const { getFirestore, doc, setDoc, getDoc } = firebase.firestore;
-        
-        // Initialize Firebase
-        // firebaseConfig is now available from firebase-config.js
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const authContainer = document.getElementById('auth-container');
-
-        // --- UTILS ---
-        const showNotification = (message, type = 'success') => {
-            const container = document.getElementById('notification-container');
-            const isSuccess = type === 'success';
-            const bgColor = isSuccess ? 'bg-green-500' : 'bg-red-500';
-            const icon = isSuccess ? 'check-circle' : 'alert-triangle';
-
-            const notification = document.createElement('div');
-            notification.className = `flex items-center p-4 mb-2 rounded-lg shadow-lg text-white ${bgColor} transition-all duration-300 transform translate-x-full opacity-0`;
-            notification.innerHTML = `
-                <i data-lucide="${icon}" class="w-6 h-6 mr-3"></i>
-                <p class="flex-grow">${message}</p>
-                <button class="ml-4 flex-shrink-0" onclick="this.parentElement.remove()"><i data-lucide="x" class="w-5 h-5"></i></button>
-            `;
-            container.appendChild(notification);
-            lucide.createIcons();
-            
-            setTimeout(() => {
-                notification.classList.remove('translate-x-full', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                notification.classList.add('translate-x-full', 'opacity-0');
-                setTimeout(() => notification.remove(), 300);
-            }, 5000);
-        };
-        const renderSpinner = (text = '') => `<div class="flex items-center justify-center">${text}<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div></div>`;
-
-        // --- TEMPLATES ---
-        const loginFormTemplate = () => `
-            <div class="text-center">
-                <i data-lucide="shield-check" class="w-16 h-16 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-4"></i>
-                <h1 class="text-3xl font-bold text-gray-900">Admission Portal</h1>
-                <p class="text-gray-600 mt-2">Welcome back! Please sign in.</p>
-            </div>
-            <form id="login-form" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" name="email" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" placeholder="you@example.com" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" name="password" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" placeholder="••••••••" />
-                </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:opacity-90 transition-opacity disabled:opacity-70">
-                    Sign In
-                </button>
-            </form>
-            <p class="text-center text-sm text-gray-600">
-                Don't have an account?
-                <button id="show-register" class="font-medium text-purple-600 hover:text-purple-500 ml-1">Register Now</button>
-            </p>`;
-        
-        const registerFormTemplate = () => `
-             <div class="text-center">
-                <i data-lucide="user-plus" class="w-16 h-16 text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-600 mx-auto mb-4"></i>
-                <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
-                <p class="text-gray-600 mt-2">Join us to start your application.</p>
-            </div>
-             <form id="register-form" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" name="email" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500" placeholder="you@example.com" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" name="password" required minlength="6" class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500" placeholder="Minimum 6 characters" />
-                </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-lg text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-cyan-600 hover:opacity-90 transition-opacity disabled:opacity-70">
-                    Register
-                </button>
-             </form>
-             <p class="text-center text-sm text-gray-600">
-                 Already have an account?
-                 <button id="show-login" class="font-medium text-purple-600 hover:text-purple-500 ml-1">Sign In</button>
-             </p>
-        `;
-
-        // --- LOGIC ---
-        const render = (template) => {
-            authContainer.innerHTML = template();
-            lucide.createIcons();
-            attachListeners();
-        };
-
-        const attachListeners = () => {
-            const form = authContainer.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', handleAuthAction);
-            }
-            document.getElementById('show-register')?.addEventListener('click', () => render(registerFormTemplate));
-            document.getElementById('show-login')?.addEventListener('click', () => render(loginFormTemplate));
-        };
-
-        const handleAuthAction = async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const button = form.querySelector('button[type="submit"]');
-            const originalText = button.innerHTML;
-            button.innerHTML = renderSpinner('Processing...');
-            button.disabled = true;
-
-            const email = form.email.value;
-            const password = form.password.value;
-
-            try {
-                if (form.id === 'login-form') {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, "users", userCred.user.uid), {
-                        email: userCred.user.email,
-                        role: 'student'
-                    });
-                    showNotification('Registration successful! Please sign in to continue.');
-                    render(loginFormTemplate);
-                }
-            } catch (error) {
-                showNotification(error.message, 'error');
-                 if(button) {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                 }
-            }
-        };
-
-        // --- INITIAL RENDER & AUTH CHECK ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
-                    window.location.replace('/admin.html');
-                } else {
-                    window.location.replace('/dashboard.html');
-                }
-            } else {
-                 render(loginFormTemplate);
-            }
-        });
-
-        // Add a fallback to render login form if firebase takes time to initialize
-        if(!auth.currentUser) {
-            render(loginFormTemplate);
-        }
-
+     <script>
+        lucide.createIcons();
     </script>
 </body>
 </html>
-
