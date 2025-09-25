@@ -23,18 +23,18 @@
         </div>
     </div>
 
-    <script type="module">
-        import { firebaseConfig } from './firebase-config.js';
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Load Firebase Config First -->
+    <script src="./firebase-config.js"></script>
 
+    <!-- Load Firebase App Logic -->
+    <script>
+        // NOTE: This script tag no longer has type="module"
+        const { initializeApp } = firebase;
+        const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } = firebase.auth;
+        const { getFirestore, doc, setDoc, getDoc } = firebase.firestore;
+        
         // Initialize Firebase
+        // firebaseConfig is now available from firebase-config.js
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -149,29 +149,27 @@
             try {
                 if (form.id === 'login-form') {
                     await signInWithEmailAndPassword(auth, email, password);
-                    // onAuthStateChanged will handle redirection, so no action needed here.
                 } else {
                     const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                    // Create a user document in Firestore to store their role
                     await setDoc(doc(db, "users", userCred.user.uid), {
                         email: userCred.user.email,
-                        role: 'student' // Default role is student
+                        role: 'student'
                     });
                     showNotification('Registration successful! Please sign in to continue.');
                     render(loginFormTemplate);
                 }
             } catch (error) {
-                // Firebase provides user-friendly error messages
                 showNotification(error.message, 'error');
-                button.innerHTML = originalText;
-                button.disabled = false;
+                 if(button) {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                 }
             }
         };
 
         // --- INITIAL RENDER & AUTH CHECK ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // If a user is logged in, check their role and redirect
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists() && userDoc.data().role === 'admin') {
                     window.location.replace('/admin.html');
@@ -179,12 +177,19 @@
                     window.location.replace('/dashboard.html');
                 }
             } else {
-                // If no user is logged in, show the login form
                  render(loginFormTemplate);
             }
         });
+
+        // Add a fallback to render login form if firebase takes time to initialize
+        if(!auth.currentUser) {
+            render(loginFormTemplate);
+        }
+
     </script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
 </body>
 </html>
-
 
