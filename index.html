@@ -9,6 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
+    
+    <!-- Load Firebase Libraries First -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -23,12 +29,11 @@
         </div>
     </div>
 
-    <!-- Load Firebase Config First -->
+    <!-- Load Firebase Config -->
     <script src="./firebase-config.js"></script>
 
     <!-- Load Firebase App Logic -->
     <script>
-        // NOTE: This script tag no longer has type="module"
         const { initializeApp } = firebase;
         const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } = firebase.auth;
         const { getFirestore, doc, setDoc, getDoc } = firebase.firestore;
@@ -187,9 +192,6 @@
         }
 
     </script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
 </body>
 </html>
 
