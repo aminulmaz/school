@@ -1,200 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Admission Application</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apex International School | Welcome</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .form-container { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .modal-backdrop { z-index: 50; }
+        .bg-gradient-mesh {
+            background-color:#a7c5eb;
+            background-image:
+                radial-gradient(at 20% 25%, hsla(212,80%,60%,1) 0px, transparent 50%),
+                radial-gradient(at 78% 18%, hsla(288,80%,60%,1) 0px, transparent 50%),
+                radial-gradient(at 49% 82%, hsla(190,80%,60%,1) 0px, transparent 50%),
+                radial-gradient(at 8% 91%, hsla(340,80%,60%,1) 0px, transparent 50%),
+                radial-gradient(at 91% 94%, hsla(60,80%,60%,1) 0px, transparent 50%);
+            min-height: 100vh;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
-
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl form-container">
-            
-            <div class="text-center mb-10">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Admission Application Form</h1>
-                <p class="text-gray-500 mt-3">Please fill out the details below accurately.</p>
+<body class="bg-gray-100">
+    <div id="notification-container" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
+    <div class="bg-gradient-mesh flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 space-y-6">
+            <div id="auth-container">
+                <!-- Auth Forms will be rendered here -->
             </div>
-
-            <form id="admission-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <div>
-                        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input type="text" id="fullName" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                        <input type="date" id="dob" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                        <input type="email" id="email" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                        <input type="tel" id="phone" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="address" class="block text-sm font-medium text-gray-700">Full Address</label>
-                        <textarea id="address" rows="3" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                    </div>
-                    <!-- Photo URL Input (reverted from file upload) -->
-                    <div class="md:col-span-2">
-                        <label for="photoUrl" class="block text-sm font-medium text-gray-700">Link to Passport Size Photo</label>
-                        <input type="url" id="photoUrl" placeholder="https://example.com/photo.jpg" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <!-- Academic Fields -->
-                    <div>
-                        <label for="lastPassedExam" class="block text-sm font-medium text-gray-700">Last Passed Exam <span class="text-red-500">*</span></label>
-                        <input type="text" id="lastPassedExam" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10th Grade, High School Diploma" required>
-                    </div>
-                    <div>
-                        <label for="percentageCgpa" class="block text-sm font-medium text-gray-700">Percentage / CGPA <span class="text-red-500">*</span></label>
-                        <input type="text" id="percentageCgpa" class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 85% or 9.2 CGPA" required>
-                    </div>
-                </div>
-
-                <div class="mt-10 text-center">
-                    <button type="submit" id="submit-btn" class="w-full md:w-auto bg-blue-600 text-white font-semibold py-3 px-12 rounded-lg hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center mx-auto">
-                        <span id="button-text">Submit Application</span>
-                        <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </form>
-        </div>
-        <div class="text-center mt-6">
-            <a href="./status.html" class="text-blue-600 hover:underline">Already applied? Check your application status here.</a>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="success-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden modal-backdrop">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center">
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h3 class="text-2xl font-semibold text-gray-800">Application Submitted!</h3>
-            <p class="text-gray-600 mt-3">Your application has been received. Your Application Number is:</p>
-            <p id="application-number" class="text-2xl font-bold text-blue-600 my-4 bg-blue-50 py-2 rounded-lg"></p>
-            <p class="text-sm text-red-600 font-medium">Please save this number for future reference.</p>
-            <button id="modal-close-btn" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
         </div>
     </div>
 
     <script type="module">
+        import { firebaseConfig } from './firebase-config.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCzlbVpsLSQECmVUs5wyaXKy-fz8nfhjkM", // Replace with your actual API Key
-            authDomain: "schooladmsn.firebaseapp.com",
-            projectId: "schooladmsn",
-            storageBucket: "schooladmsn.firebasestorage.app",
-            messagingSenderId: "355479237462",
-            appId: "1:355479237462:web:8eaba019c00ad8684d5cf7",
-            measurementId: "G-LJW1ZQTGSV"
-        };
-        // --- END OF FIREBASE CONFIGURATION ---
-
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const form = document.getElementById('admission-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const buttonText = document.getElementById('button-text');
-        const buttonSpinner = document.getElementById('button-spinner');
-        const successModal = document.getElementById('success-modal');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const authContainer = document.getElementById('auth-container');
 
-        form.addEventListener('submit', async (e) => {
+        // --- UTILS ---
+        const showNotification = (message, type = 'success') => {
+            const container = document.getElementById('notification-container');
+            const isSuccess = type === 'success';
+            const bgColor = isSuccess ? 'bg-green-500' : 'bg-red-500';
+            const icon = isSuccess ? 'check-circle' : 'alert-triangle';
+
+            const notification = document.createElement('div');
+            notification.className = `flex items-center p-4 mb-2 rounded-lg shadow-lg text-white ${bgColor} transition-all duration-300 transform translate-x-full opacity-0`;
+            notification.innerHTML = `
+                <i data-lucide="${icon}" class="w-6 h-6 mr-3"></i>
+                <p class="flex-grow">${message}</p>
+                <button class="ml-4 flex-shrink-0" onclick="this.parentElement.remove()"><i data-lucide="x" class="w-5 h-5"></i></button>
+            `;
+            container.appendChild(notification);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        };
+        const renderSpinner = (text = '') => `<div class="flex items-center justify-center">${text}<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div></div>`;
+
+        // --- TEMPLATES ---
+        const loginFormTemplate = () => `
+            <div class="text-center">
+                <i data-lucide="shield-check" class="w-16 h-16 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600 mx-auto mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-900">Admission Portal</h1>
+                <p class="text-gray-600 mt-2">Welcome back! Please sign in.</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" name="email" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="you@example.com" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="••••••••" />
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70">
+                    Sign In
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600">
+                Don't have an account?
+                <button id="show-register" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Register Now</button>
+            </p>`;
+        
+        const registerFormTemplate = () => `
+             <div class="text-center">
+                <i data-lucide="user-plus" class="w-16 h-16 text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-600 mx-auto mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+                <p class="text-gray-600 mt-2">Join us to start your application.</p>
+            </div>
+             <form id="register-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" name="email" required class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500" placeholder="you@example.com" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password" required minlength="6" class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500" placeholder="Minimum 6 characters" />
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-lg text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-70">
+                    Register
+                </button>
+             </form>
+             <p class="text-center text-sm text-gray-600">
+                 Already have an account?
+                 <button id="show-login" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Sign In</button>
+             </p>
+        `;
+
+        // --- LOGIC ---
+        const render = (template) => {
+            authContainer.innerHTML = template();
+            lucide.createIcons();
+            attachListeners();
+        };
+
+        const attachListeners = () => {
+            const form = authContainer.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', handleAuthAction);
+            }
+            document.getElementById('show-register')?.addEventListener('click', () => render(registerFormTemplate));
+            document.getElementById('show-login')?.addEventListener('click', () => render(loginFormTemplate));
+        };
+
+        const handleAuthAction = async (e) => {
             e.preventDefault();
-            setLoading(true);
+            const form = e.target;
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = renderSpinner('Processing...');
+            button.disabled = true;
 
-            // Generate a unique application number
-            const applicationNo = `SCHL${Date.now()}`;
+            const email = form.email.value;
+            const password = form.password.value;
 
             try {
-                // Get form data
-                const applicationData = {
-                    fullName: document.getElementById('fullName').value,
-                    dob: document.getElementById('dob').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
-                    photoUrl: document.getElementById('photoUrl').value, // Reverted to URL input
-                    lastPassedExam: document.getElementById('lastPassedExam').value,
-                    percentageCgpa: document.getElementById('percentageCgpa').value,
-                    applicationNo: applicationNo,
-                    status: "Submitted", // Initial status
-                    submittedAt: serverTimestamp()
-                };
-
-                // Add a new document with a generated ID to the "applications" collection
-                await addDoc(collection(db, "applications"), applicationData);
-                
-                // Show success message
-                document.getElementById('application-number').textContent = applicationNo;
-                successModal.classList.remove('hidden');
-                successModal.classList.add('flex');
-
+                if (form.id === 'login-form') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    // onAuthStateChanged will handle redirection, so no action needed here.
+                } else {
+                    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                    // Create a user document in Firestore to store their role
+                    await setDoc(doc(db, "users", userCred.user.uid), {
+                        email: userCred.user.email,
+                        role: 'student' // Default role is student
+                    });
+                    showNotification('Registration successful! Please sign in to continue.');
+                    render(loginFormTemplate);
+                }
             } catch (error) {
-                console.error("Error adding document: ", error);
-                showCustomAlert("There was an error submitting your application. Please try again.");
-            } finally {
-                setLoading(false);
+                // Firebase provides user-friendly error messages
+                showNotification(error.message, 'error');
+                button.innerHTML = originalText;
+                button.disabled = false;
             }
-        });
+        };
 
-        function setLoading(isLoading) {
-            submitBtn.disabled = isLoading;
-            if (isLoading) {
-                buttonText.classList.add('hidden');
-                buttonSpinner.classList.remove('hidden');
+        // --- INITIAL RENDER & AUTH CHECK ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // If a user is logged in, check their role and redirect
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                    window.location.replace('/admin.html');
+                } else {
+                    window.location.replace('/dashboard.html');
+                }
             } else {
-                buttonText.classList.remove('hidden');
-                buttonSpinner.classList.add('hidden');
+                // If no user is logged in, show the login form
+                 render(loginFormTemplate);
             }
-        }
-
-        modalCloseBtn.addEventListener('click', () => {
-            successModal.classList.add('hidden');
-            successModal.classList.remove('flex');
-            form.reset();
         });
-
-        // Custom Alert/Message Box Function (replaces alert())
-        function showCustomAlert(message) {
-            const existingAlert = document.getElementById('custom-alert-modal');
-            if (existingAlert) existingAlert.remove();
-
-            const alertModal = document.createElement('div');
-            alertModal.id = 'custom-alert-modal';
-            alertModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 modal-backdrop';
-            alertModal.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Notification</h3>
-                    <p class="text-gray-600 mb-6">${message}</p>
-                    <button id="custom-alert-ok-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">OK</button>
-                </div>
-            `;
-            document.body.appendChild(alertModal);
-
-            document.getElementById('custom-alert-ok-btn').addEventListener('click', () => {
-                alertModal.remove();
-            });
-        }
     </script>
 </body>
 </html>
+
